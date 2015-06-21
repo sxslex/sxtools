@@ -3,4 +3,4 @@
 .coverage
 build/
 dist/
-sxtool.egg-info/
+sxtools.egg-info/*
