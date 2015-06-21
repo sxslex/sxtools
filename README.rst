@@ -21,7 +21,7 @@ cachedef:
 
 Decorator responsible for making a cache of the results of calling a method in accordance with the reported parameters. ::
 
-```python
+.. code-block:: 
     from sxtools import cachedef
     import datetime
 
