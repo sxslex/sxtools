@@ -57,7 +57,7 @@ Using sxtools
     start = datetime.datetime.now()
     print 'test 5: %d ' % foo(2, 3)
     print 'cost: %s' % str(datetime.datetime.now() - start)
-```
+
 
 development
 --------
