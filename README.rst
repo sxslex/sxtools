@@ -4,7 +4,7 @@ sxtools
 
 The ``sxtools`` Methods library for Python (cachedef)
 
-.. cachedef:: Decorator responsible for making a cache of the results of calling a method in accordance with the reported 
+.. cachedef:: Decorator responsible for making a cache of the results of calling a method in accordance with the reported
 
 Installing
 --------
@@ -17,7 +17,7 @@ For install sxtools, run on terminal: ::
 Using sxtools
 --------
 
-- cachedef: 
+- cachedef:
 
     Decorator responsible for making a cache of the results of calling a method in accordance with the reported parameters.
 
@@ -66,10 +66,12 @@ development
 
 Pull requests are very welcomed! Make sure your patches are well tested.
 
-running the tests
+Running the tests
 --------
 
-if you are using a virtualenv, all you need is:
+Install dev_requirements.txt `pip install -r dev_requirements.txt`
+
+All you need is:
 
 ::
 

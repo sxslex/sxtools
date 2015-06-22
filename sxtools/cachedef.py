@@ -5,12 +5,13 @@
 #               performance of costly methods
 # @author:      SleX - slex@slex.com.br
 # @created:     09:37 30/01/2013
-# @version:     0.2.4
+# @version:     0.2.5
 # -----------------------------------------------------------------------------
 import os
 import pprint
 import hashlib
 import datetime
+from functools import wraps
 
 
 def _loads(s, ftype='pickle'):
@@ -33,7 +34,6 @@ def _dumps(s, ftype='pickle'):
 
 
 def getpathfiledir(path, filename, nivel=3, numc=2):
-    import os
     patha = path.replace('\\', '/')
     directory = ''
     for d in patha.split('/'):
@@ -77,7 +77,6 @@ def getcontextfile(pathfile, minuteexpire=5, debug=False, ftype='pickle'):
 
 
 def setcontextfile(pathfile, context, ftype='pickle'):
-    import os
     if os.path.exists(pathfile):
         os.remove(pathfile)
     f = open(pathfile, 'w')
@@ -155,14 +154,8 @@ class CacheDef(object):
 
     """
 
-    def __init__(
-        self,
-        seed,
-        path=None,
-        minuteexpire=60,
-        debug=False,
-        ftype='pickle'
-    ):
+    def __init__(self, seed, path=None, minuteexpire=60, debug=False,
+                 ftype='pickle'):
         if not path:
             path = '/tmp/cachedef'
             if os.path.exists('c:/'):
@@ -179,6 +172,7 @@ class CacheDef(object):
         self.config = self.__config.copy()
         self.config['path'] = self.config['path'] + '/' + call.func_name
 
+        @wraps(call)
         def newdef(*args, **kwargs):
             resp = None
             if not kwargs.get('ignore_cache'):
@@ -212,13 +206,7 @@ class CacheDef(object):
         return newdef
 
 
-def cachedef(
-    seed,
-    path=None,
-    minuteexpire=60,
-    debug=False,
-    ftype='pickle'
-):
+def cachedef(seed, path=None, minuteexpire=60, debug=False, ftype='pickle'):
     """
         Decorator responsible for making a cache of the results
         of calling a method in accordance with the reported.
@@ -231,13 +219,8 @@ def cachedef(
             ftype -- so that to store the cache ('pickle', 'literal')
 
     """
-    return CacheDef(
-        seed=seed,
-        path=path,
-        minuteexpire=minuteexpire,
-        debug=debug,
-        ftype=ftype
-    )
+    return CacheDef(seed=seed, path=path, minuteexpire=minuteexpire,
+                    debug=debug, ftype=ftype)
 
 
 def test():
