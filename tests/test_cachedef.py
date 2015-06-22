@@ -5,6 +5,7 @@ import unittest
 import datetime
 import os
 
+foo_executando = False
 
 @cachedef(
     # seed so that the cache be saved alone
@@ -17,8 +18,8 @@ import os
     debug=False
 )
 def foo(a, b):
-    import time
-    time.sleep(3)
+    global foo_executando
+    foo_executando = True
     return a + b
 
 
@@ -29,19 +30,14 @@ class CacheDefTestCase(unittest.TestCase):
         self.assertEqual(3, foo(1, 2))
 
     def test_cachedef_2(self):
+        global foo_executando
         self.assertEqual(4, foo(1, 3))
-        start = datetime.datetime.now()
+        foo_executando = False
         self.assertEqual(4, foo(1, 3))
-        cost = datetime.datetime.now() - start
-        self.assertTrue(
-            cost < datetime.timedelta(seconds=2)
-        )
-        start = datetime.datetime.now()
+        self.assertFalse(foo_executando)
+        foo_executando = True
         self.assertEqual(4, foo(1, 3, ignore_cache=True))
-        cost = datetime.datetime.now() - start
-        self.assertTrue(
-            cost > datetime.timedelta(seconds=2)
-        )
+        self.assertTrue(foo_executando)
 
 
 if __name__ == '__main__':
