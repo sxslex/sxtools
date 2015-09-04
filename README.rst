@@ -77,3 +77,8 @@ All you need is:
 
     $ make test
 
+
+
+.. image:: https://badges.gitter.im/Join%20Chat.svg
+   :alt: Join the chat at https://gitter.im/sxslex/sxtools
+   :target: https://gitter.im/sxslex/sxtools?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
