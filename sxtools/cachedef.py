@@ -222,35 +222,35 @@ def cachedef(seed, path=None, minuteexpire=60, debug=False, ftype='pickle'):
     return CacheDef(seed=seed, path=path, minuteexpire=minuteexpire,
                     debug=debug, ftype=ftype)
 
-if __name__ == '__main__':
-    # example of use
-    @cachedef(seed='foo')
-    def foo(a, b):
-        import time
-        time.sleep(1)
-        return a + b
+# if __name__ == '__main__':
+#     # example of use
+#     @cachedef(seed='foo')
+#     def foo(a, b):
+#         import time
+#         time.sleep(1)
+#         return a + b
 
-    start = datetime.datetime.now()
+#     start = datetime.datetime.now()
 
-    # it takes three seconds
-    print 'test 1: %d ' % foo(1, 2)
-    print 'cost: %s' % str(datetime.datetime.now() - start)
+#     # it takes three seconds
+#     print 'test 1: %d ' % foo(1, 2)
+#     print 'cost: %s' % str(datetime.datetime.now() - start)
 
-    # should return quickly
-    start = datetime.datetime.now()
-    print 'test 2: %d ' % foo(1, 2)
-    print 'cost: %s' % str(datetime.datetime.now() - start)
+#     # should return quickly
+#     start = datetime.datetime.now()
+#     print 'test 2: %d ' % foo(1, 2)
+#     print 'cost: %s' % str(datetime.datetime.now() - start)
 
-    start = datetime.datetime.now()
-    print 'test 3: %d ' % foo(1, 2)
-    print 'cost: %s' % str(datetime.datetime.now() - start)
+#     start = datetime.datetime.now()
+#     print 'test 3: %d ' % foo(1, 2)
+#     print 'cost: %s' % str(datetime.datetime.now() - start)
 
-    # ignore cache
-    start = datetime.datetime.now()
-    print 'test 4: %d ' % foo(1, 2, ignore_cache=True)
-    print 'cost: %s' % str(datetime.datetime.now() - start)
+#     # ignore cache
+#     start = datetime.datetime.now()
+#     print 'test 4: %d ' % foo(1, 2, ignore_cache=True)
+#     print 'cost: %s' % str(datetime.datetime.now() - start)
 
-    # it takes three seconds
-    start = datetime.datetime.now()
-    print 'test 5: %d ' % foo(2, 3)
-    print 'cost: %s' % str(datetime.datetime.now() - start)
+#     # it takes three seconds
+#     start = datetime.datetime.now()
+#     print 'test 5: %d ' % foo(2, 3)
+#     print 'cost: %s' % str(datetime.datetime.now() - start)

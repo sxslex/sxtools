@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 # -----------------------------------------------------------------------------
-# name:         genericimage.py
-# author:       slex
-# create:       2015-07-06
-# version:      1.0
+# @ame:         genericimage.py
+# @description: Lets you create a generic image to use in development servers
+# @author:      slex
+# @create:      2015-07-06
+# @version:     1.0
 # -----------------------------------------------------------------------------
 import os
 from PIL import Image
@@ -43,7 +44,7 @@ class GenericImage(object):
         )
         draw = ImageDraw.Draw(img)
         if not os.path.exists(self.font_family):
-            raise Exception('arquivo nao existe: ' + str(self.font_family))
+            raise Exception('file does not exist: ' + str(self.font_family))
         fontt = ImageFont.truetype(
             self.font_family,
             self.font_size
@@ -77,7 +78,7 @@ class GenericImage(object):
             base64.b64encode(self.create())
 
 
-if __name__ == '__main__':
-    gi = GenericImage(iformat='JPEG')
-    gi.save('/tmp/novaimagem.jpg')
-    print gi.base64()
+# if __name__ == '__main__':
+#     gi = GenericImage(iformat='JPEG')
+#     gi.save('/tmp/newimage.jpg')
+#     print gi.base64()
