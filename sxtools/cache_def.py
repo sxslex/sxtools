@@ -5,7 +5,7 @@
 #               performance of costly methods
 # @author:      SleX - slex@slex.com.br
 # @created:     09:37 30/01/2013
-# @version:     0.2.5
+# @version:     0.2.2
 # -----------------------------------------------------------------------------
 import os
 import pprint
@@ -33,7 +33,7 @@ def _dumps(s, ftype='pickle'):
     raise Exception('ftype "%s" not supported' % ftype)
 
 
-def getpathfiledir(path, filename, nivel=3, numc=2):
+def _getpathfiledir(path, filename, nivel=3, numc=2):
     patha = path.replace('\\', '/')
     directory = ''
     for d in patha.split('/'):
@@ -51,7 +51,7 @@ def getpathfiledir(path, filename, nivel=3, numc=2):
     return directory + filename
 
 
-def getcontextfile(pathfile, minuteexpire=5, debug=False, ftype='pickle'):
+def _getcontextfile(pathfile, minuteexpire=5, debug=False, ftype='pickle'):
     if not os.path.exists(pathfile):
         return None
     timestamp = datetime.datetime.fromtimestamp(os.path.getmtime(pathfile))
@@ -76,7 +76,7 @@ def getcontextfile(pathfile, minuteexpire=5, debug=False, ftype='pickle'):
     return None
 
 
-def setcontextfile(pathfile, context, ftype='pickle'):
+def _setcontextfile(pathfile, context, ftype='pickle'):
     if os.path.exists(pathfile):
         os.remove(pathfile)
     f = open(pathfile, 'w')
@@ -89,13 +89,13 @@ def setcontextfile(pathfile, context, ftype='pickle'):
     return False
 
 
-def getcache(config, *args, **kwargs):
+def _getcache(config, *args, **kwargs):
     if os.path.isdir(config.get('path', '')):
         newkwargs = kwargs.copy()
         if 'ignore_cache' in newkwargs:
             newkwargs.pop('ignore_cache')
         seed = pprint.pformat([args, newkwargs])
-        pathfile = getpathfiledir(
+        pathfile = _getpathfiledir(
             config['path'],
             hashlib.md5(
                 config.get('seed', '') +
@@ -105,7 +105,7 @@ def getcache(config, *args, **kwargs):
         )
         if config.get('debug'):
             print([pathfile, seed])
-        return getcontextfile(
+        return _getcontextfile(
             pathfile=pathfile,
             minuteexpire=config.get(
                 'minuteexpire',
@@ -117,13 +117,13 @@ def getcache(config, *args, **kwargs):
     return None
 
 
-def setcache(config, context, *args, **kwargs):
+def _setcache(config, context, *args, **kwargs):
     if config.get('path', ''):
         newkwargs = kwargs.copy()
         if 'ignore_cache' in newkwargs:
             newkwargs.pop('ignore_cache')
         seed = pprint.pformat([args, newkwargs])
-        pathfile = getpathfiledir(
+        pathfile = _getpathfiledir(
             config['path'],
             hashlib.md5(
                 config.get('seed', '') + config['path'] + seed
@@ -131,7 +131,7 @@ def setcache(config, context, *args, **kwargs):
         )
         if config.get('debug'):
             print([pathfile, seed])
-        return setcontextfile(
+        return _setcontextfile(
             pathfile=pathfile,
             context=context,
             ftype=config.get('ftype', 'literal')
@@ -176,7 +176,7 @@ class CacheDef(object):
         def newdef(*args, **kwargs):
             resp = None
             if not kwargs.get('ignore_cache'):
-                resp = getcache(
+                resp = _getcache(
                     self.config,
                     *args,
                     **kwargs
@@ -191,7 +191,7 @@ class CacheDef(object):
                 ):
                     kwargs.pop('ignore_cache')
                 resp = call(*args, **kwargs)
-                setcache(
+                _setcache(
                     self.config,
                     resp,
                     *args,
