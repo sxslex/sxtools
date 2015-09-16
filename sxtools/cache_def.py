@@ -11,6 +11,7 @@ import os
 import pprint
 import hashlib
 import datetime
+import platform
 from functools import wraps
 
 
@@ -156,9 +157,10 @@ class CacheDef(object):
 
     def __init__(self, seed, path=None, minuteexpire=60, debug=False,
                  ftype='pickle'):
+
         if not path:
             path = '/tmp/cachedef'
-            if os.path.exists('c:/'):
+            if platform.system() == 'Windows':
                 path = 'c:/tmp/cachedef'
         self.__config = {
             'seed': seed,
