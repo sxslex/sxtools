@@ -1,13 +1,13 @@
 # -*- encoding: utf-8 -*-
 
-from sxtools import cachedef
+from sxtools import cache_def
 import unittest
 import datetime
 import os
 
 foo_executando = False
 
-@cachedef(
+@cache_def(
     # seed so that the cache be saved alone
     seed='foo',
     # directory cache

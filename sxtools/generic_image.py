@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # -----------------------------------------------------------------------------
-# @ame:         genericimage.py
+# @ame:         generic_image.py
 # @description: Lets you create a generic image to use in development servers
 # @author:      slex
 # @create:      2015-07-06

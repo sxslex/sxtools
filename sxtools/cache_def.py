@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 # -----------------------------------------------------------------------------
-# @name:        cachedef.py
+# @name:        cache_def.py
 # @description: Allow decorate a method with a cache to increase
 #               performance of costly methods
 # @author:      SleX - slex@slex.com.br
@@ -206,7 +206,7 @@ class CacheDef(object):
         return newdef
 
 
-def cachedef(seed, path=None, minuteexpire=60, debug=False, ftype='pickle'):
+def cache_def(seed, path=None, minuteexpire=60, debug=False, ftype='pickle'):
     """
         Decorator responsible for making a cache of the results
         of calling a method in accordance with the reported.
