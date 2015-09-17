@@ -4,13 +4,19 @@
 # @description: Allow decorate a method with a cache to increase
 #               performance of costly methods
 # @author:      SleX - slex@slex.com.br
+<<<<<<< HEAD:sxtools/cache_def.py
 # @created:     2013-01-30
 # @version:     0.2
+=======
+# @created:     09:37 30/01/2013
+# @version:     0.2.2
+>>>>>>> e58f370963d77c06aefdd3f41d3542d870f30a02:sxtools/cache_def.py
 # -----------------------------------------------------------------------------
 import os
 import pprint
 import hashlib
 import datetime
+import platform
 from functools import wraps
 
 
@@ -76,7 +82,7 @@ def _getcontextfile(pathfile, minuteexpire=5, debug=False, ftype='pickle'):
     return None
 
 
-def setcontextfile(pathfile, context, ftype='pickle'):
+def _setcontextfile(pathfile, context, ftype='pickle'):
     if os.path.exists(pathfile):
         os.remove(pathfile)
     f = open(pathfile, 'w')
@@ -89,7 +95,7 @@ def setcontextfile(pathfile, context, ftype='pickle'):
     return False
 
 
-def getcache(config, *args, **kwargs):
+def _getcache(config, *args, **kwargs):
     if os.path.isdir(config.get('path', '')):
         newkwargs = kwargs.copy()
         if 'ignore_cache' in newkwargs:
@@ -131,7 +137,7 @@ def _setcache(config, context, *args, **kwargs):
         )
         if config.get('debug'):
             print([pathfile, seed])
-        return setcontextfile(
+        return _setcontextfile(
             pathfile=pathfile,
             context=context,
             ftype=config.get('ftype', 'literal')
@@ -156,9 +162,10 @@ class _CacheDef(object):
 
     def __init__(self, seed, path=None, minuteexpire=60, debug=False,
                  ftype='pickle'):
+
         if not path:
             path = '/tmp/cachedef'
-            if os.path.exists('c:/'):
+            if platform.system() == 'Windows':
                 path = 'c:/tmp/cachedef'
         self.__config = {
             'seed': seed,
@@ -176,7 +183,7 @@ class _CacheDef(object):
         def newdef(*args, **kwargs):
             resp = None
             if not kwargs.get('ignore_cache'):
-                resp = getcache(
+                resp = _getcache(
                     self.config,
                     *args,
                     **kwargs

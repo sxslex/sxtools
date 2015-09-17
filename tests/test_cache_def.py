@@ -2,16 +2,27 @@
 
 from sxtools import cache_def
 import unittest
+<<<<<<< HEAD:tests/test_cache_def.py
 import os
 
 foo_executando = False
 
+=======
+import platform
+
+foo_executando = False
+
+path_default = '/tmp'
+if platform.system() == 'Windows':
+    path_default = 'c:/tmp'
+
+>>>>>>> e58f370963d77c06aefdd3f41d3542d870f30a02:tests/test_cache_def.py
 
 @cache_def(
     # seed so that the cache be saved alone
     seed='foo',
     # directory cache
-    path='/tmp' if os.path.exists('c:/') else 'c:/tmp',
+    path=path_default,
     # cache time in minutes
     minuteexpire=15,
     # debug mode

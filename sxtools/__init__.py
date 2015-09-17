@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # coding: utf-8
 
 # Copyright 2014-2015 SleX <https://github.com/sxslex/sxtools/>
@@ -22,3 +23,8 @@ import string_utils
 from generic_image import GenericImage
 
 __version__ = '0.0.2'
+=======
+from cache_def import cache_def
+from generic_image import GenericImage
+__version__ = '0.2.5'
+>>>>>>> e58f370963d77c06aefdd3f41d3542d870f30a02
