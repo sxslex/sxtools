@@ -1,11 +1,11 @@
 # -*- encoding: utf-8 -*-
 # -----------------------------------------------------------------------------
-# @name:        cachedef.py
+# @name:        cache_def.py
 # @description: Allow decorate a method with a cache to increase
 #               performance of costly methods
 # @author:      SleX - slex@slex.com.br
-# @created:     09:37 30/01/2013
-# @version:     0.2.5
+# @created:     2013-01-30
+# @version:     0.2
 # -----------------------------------------------------------------------------
 import os
 import pprint
@@ -33,7 +33,7 @@ def _dumps(s, ftype='pickle'):
     raise Exception('ftype "%s" not supported' % ftype)
 
 
-def getpathfiledir(path, filename, nivel=3, numc=2):
+def _getpathfiledir(path, filename, nivel=3, numc=2):
     patha = path.replace('\\', '/')
     directory = ''
     for d in patha.split('/'):
@@ -51,7 +51,7 @@ def getpathfiledir(path, filename, nivel=3, numc=2):
     return directory + filename
 
 
-def getcontextfile(pathfile, minuteexpire=5, debug=False, ftype='pickle'):
+def _getcontextfile(pathfile, minuteexpire=5, debug=False, ftype='pickle'):
     if not os.path.exists(pathfile):
         return None
     timestamp = datetime.datetime.fromtimestamp(os.path.getmtime(pathfile))
@@ -95,7 +95,7 @@ def getcache(config, *args, **kwargs):
         if 'ignore_cache' in newkwargs:
             newkwargs.pop('ignore_cache')
         seed = pprint.pformat([args, newkwargs])
-        pathfile = getpathfiledir(
+        pathfile = _getpathfiledir(
             config['path'],
             hashlib.md5(
                 config.get('seed', '') +
@@ -105,7 +105,7 @@ def getcache(config, *args, **kwargs):
         )
         if config.get('debug'):
             print([pathfile, seed])
-        return getcontextfile(
+        return _getcontextfile(
             pathfile=pathfile,
             minuteexpire=config.get(
                 'minuteexpire',
@@ -117,13 +117,13 @@ def getcache(config, *args, **kwargs):
     return None
 
 
-def setcache(config, context, *args, **kwargs):
+def _setcache(config, context, *args, **kwargs):
     if config.get('path', ''):
         newkwargs = kwargs.copy()
         if 'ignore_cache' in newkwargs:
             newkwargs.pop('ignore_cache')
         seed = pprint.pformat([args, newkwargs])
-        pathfile = getpathfiledir(
+        pathfile = _getpathfiledir(
             config['path'],
             hashlib.md5(
                 config.get('seed', '') + config['path'] + seed
@@ -139,7 +139,7 @@ def setcache(config, context, *args, **kwargs):
     return False
 
 
-class CacheDef(object):
+class _CacheDef(object):
 
     """
         Decorator responsible for making a cache of the results
@@ -191,7 +191,7 @@ class CacheDef(object):
                 ):
                     kwargs.pop('ignore_cache')
                 resp = call(*args, **kwargs)
-                setcache(
+                _setcache(
                     self.config,
                     resp,
                     *args,
@@ -206,7 +206,7 @@ class CacheDef(object):
         return newdef
 
 
-def cachedef(seed, path=None, minuteexpire=60, debug=False, ftype='pickle'):
+def cache_def(seed, path=None, minuteexpire=60, debug=False, ftype='pickle'):
     """
         Decorator responsible for making a cache of the results
         of calling a method in accordance with the reported.
@@ -219,8 +219,14 @@ def cachedef(seed, path=None, minuteexpire=60, debug=False, ftype='pickle'):
             ftype -- so that to store the cache ('pickle', 'literal')
 
     """
-    return CacheDef(seed=seed, path=path, minuteexpire=minuteexpire,
-                    debug=debug, ftype=ftype)
+    return _CacheDef(
+        seed=seed,
+        path=path,
+        minuteexpire=minuteexpire,
+        debug=debug,
+        ftype=ftype
+    )
+
 
 # if __name__ == '__main__':
 #     # example of use

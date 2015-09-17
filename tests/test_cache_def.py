@@ -1,13 +1,13 @@
 # -*- encoding: utf-8 -*-
 
-from sxtools import cachedef
+from sxtools import cache_def
 import unittest
-import datetime
 import os
 
 foo_executando = False
 
-@cachedef(
+
+@cache_def(
     # seed so that the cache be saved alone
     seed='foo',
     # directory cache
@@ -23,7 +23,7 @@ def foo(a, b):
     return a + b
 
 
-class CacheDefTestCase(unittest.TestCase):
+class TestCacheDef(unittest.TestCase):
 
     def test_cachedef_1(self):
         self.assertEqual(3, foo(1, 2))
@@ -38,7 +38,3 @@ class CacheDefTestCase(unittest.TestCase):
         foo_executando = True
         self.assertEqual(4, foo(1, 3, ignore_cache=True))
         self.assertTrue(foo_executando)
-
-
-if __name__ == '__main__':
-    unittest.main()

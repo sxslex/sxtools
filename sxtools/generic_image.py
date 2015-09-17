@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 # -----------------------------------------------------------------------------
-# @ame:         genericimage.py
+# @ame:         generic_image.py
 # @description: Lets you create a generic image to use in development servers
 # @author:      slex
 # @create:      2015-07-06
-# @version:     1.0
+# @version:     0.1
 # -----------------------------------------------------------------------------
 import os
 from PIL import Image
@@ -79,6 +79,6 @@ class GenericImage(object):
 
 
 # if __name__ == '__main__':
-#     gi = GenericImage(iformat='JPEG')
-#     gi.save('/tmp/newimage.jpg')
-#     print gi.base64()
+#      gi = GenericImage(width=1, height=1, text='', iformat='JPEG')
+#      gi.save('/tmp/newimage.jpg')
+#      print 'data:image/jpeg;base64,' in gi.base64()
