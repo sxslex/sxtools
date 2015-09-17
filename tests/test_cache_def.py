@@ -1,13 +1,8 @@
 # -*- encoding: utf-8 -*-
 
-from sxtools import cache_def
+from sxtools.cache_def import cache_def
 import unittest
-<<<<<<< HEAD:tests/test_cache_def.py
-import os
 
-foo_executando = False
-
-=======
 import platform
 
 foo_executando = False
@@ -16,7 +11,6 @@ path_default = '/tmp'
 if platform.system() == 'Windows':
     path_default = 'c:/tmp'
 
->>>>>>> e58f370963d77c06aefdd3f41d3542d870f30a02:tests/test_cache_def.py
 
 @cache_def(
     # seed so that the cache be saved alone

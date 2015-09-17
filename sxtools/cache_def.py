@@ -4,13 +4,8 @@
 # @description: Allow decorate a method with a cache to increase
 #               performance of costly methods
 # @author:      SleX - slex@slex.com.br
-<<<<<<< HEAD:sxtools/cache_def.py
 # @created:     2013-01-30
 # @version:     0.2
-=======
-# @created:     09:37 30/01/2013
-# @version:     0.2.2
->>>>>>> e58f370963d77c06aefdd3f41d3542d870f30a02:sxtools/cache_def.py
 # -----------------------------------------------------------------------------
 import os
 import pprint
