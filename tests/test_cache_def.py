@@ -20,13 +20,17 @@
 from sxtools import cache_def
 import unittest
 import tempfile
+import shutil
 import os
 foo_executando = False
 path_default = os.path.join(tempfile.gettempdir(), 'cache_def')
 
 try:
     if os.path.exists(path_default):
-        os.unlink(path_default)
+        if os.path.isdir(path_default):
+            shutil.rmtree(path_default)
+        else:
+            os.remove(path_default)
 except Exception:
     pass
 
@@ -66,10 +70,30 @@ class TestCacheDef(unittest.TestCase):
         self.assertEqual(3, foo(1, 2))
         self.assertEqual(3, foo(1, 2))
 
-    def test_cache_def_2(self):
+    def test_cache_def_ftype_invalid(self):
+        @cache_def(
+            seed='ftype_invalid',
+            path=path_default,
+            minuteexpire=15,
+            debug=False,
+            ftype='slex'
+        )
+        def foo(a, b):
+            global foo_executando
+            foo_executando = True
+            return a + b
+        f = open(os.path.join(path_default, 'ftype_invalid'), 'w')
+        f.write('.')
+        f.close()
+        self.assertRaises(
+            Exception, foo,
+            (1, 2)
+        )
+
+    def test_cache_def_full(self):
         @cache_def(
             # seed so that the cache be saved alone
-            seed='foo',
+            seed='def_full',
             # directory cache
             path=path_default,
             # cache time in minutes
