@@ -45,3 +45,11 @@ class TestStringUtils(unittest.TestCase):
             ),
             dict(name=u'BRASILIA/PLANO PILOTO', idade=1, sport=u'Tenis')
         )
+
+    def test_to_unicode_latin(self):
+        self.assertEquals(
+            string_utils.to_unicode(
+                'Ol\xe1'
+            ),
+            u'Olá'
+        )
