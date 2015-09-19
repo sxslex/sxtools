@@ -2,32 +2,33 @@
 sxtools
 ======
 
-The ``sxtools`` Methods library for Python (cachedef)
+The ``sxtools`` Set of libraries to facilitate the work
 
-.. cachedef:: Decorator responsible for making a cache of the results of calling a method in accordance with the reported
+.. cache_def:: Decorator responsible for making a cache of the results of calling a method in accordance with the reported
+.. GenericImage:: Lets you create a generic image to use in development servers
+.. string_utils:: Functions to work with packets strings
+
 
 Installing
 --------
 
 For install sxtools, run on terminal: ::
 
-    $ [sudo] cd cachedef
+    $ [sudo] cd sxtools
     $ [sudo] python setup.py install
 
 Using sxtools
 --------
 
-- cachedef:
-
-    Decorator responsible for making a cache of the results of calling a method in accordance with the reported parameters.
+- cache_def:
 
 .. code-block:: python
 
-    from sxtools import cachedef
+    from sxtools import cache_def
     import datetime
 
 
-    @cachedef(seed='foo')
+    @cache_def(seed='foo')
     def foo(a, b):
         import time
         time.sleep(3)
@@ -58,6 +59,37 @@ Using sxtools
     print 'test 5: %d ' % foo(2, 3)
     print 'cost: %s' % str(datetime.datetime.now() - start)
 
+
+- GenericImage:
+
+.. code-block:: python
+    from sxtools import GenericImage
+
+    gi = GenericImage(
+        text='image-default',
+        width=300,
+        height=200
+    )
+    gi.save('/tmp/image-default.jpg')
+
+- string_utils:
+
+.. code-block:: python
+    from sxtools import string_utils
+
+    string_utils.capitalize_name(u'BRASÍLIA/PLANO PILOTO')
+    >>> u'Brasília/Plano Piloto'
+
+    string_utils.capitalize_name(u'joão paulo ii')
+    >>> u'João Paulo II'
+
+    string_utils.to_unicode('BRASILIA/PLANO PILOTO'),
+    >>> u'BRASILIA/PLANO PILOTO'
+
+    string_utils.to_unicode(
+        ['BRASILIA/PLANO PILOTO', 1, True, 'Bolas']
+    )
+    >>> [u'BRASILIA/PLANO PILOTO', 1, True, u'Bolas']
 
 development
 --------

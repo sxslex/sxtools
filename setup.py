@@ -5,11 +5,11 @@ from setuptools import find_packages
 
 setup(
     name='sxtools',
-    author='SleX',
-    author_email='slex@slex.com.br',
+    author='Alexandre Villela (SleX)',
+    author_email='sx.slex@gmail.com',
     version=__version__,
     description=__description__,
-    keywords='sxtools cachedef cache method tools',
+    keywords='sxtools tools cache cache_def image string capitalize_name',
     long_description=open('README.rst').read(),
     packages=find_packages(),
     include_package_data=True,
