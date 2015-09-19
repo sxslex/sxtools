@@ -63,6 +63,7 @@ Using sxtools
 - GenericImage:
 
 .. code-block:: python
+
     from sxtools import GenericImage
 
     gi = GenericImage(
@@ -72,9 +73,11 @@ Using sxtools
     )
     gi.save('/tmp/image-default.jpg')
 
+
 - string_utils:
 
 .. code-block:: python
+
     from sxtools import string_utils
 
     string_utils.capitalize_name(u'BRASÍLIA/PLANO PILOTO')
@@ -90,6 +93,7 @@ Using sxtools
         ['BRASILIA/PLANO PILOTO', 1, True, 'Bolas']
     )
     >>> [u'BRASILIA/PLANO PILOTO', 1, True, u'Bolas']
+
 
 development
 --------
