@@ -41,6 +41,12 @@ class TestStringUtils(unittest.TestCase):
             u'João Paulo II'
         )
 
+    def test_capitalize_name_4(self):
+        self.assertEqual(
+            string_utils.capitalize_name(''),
+            u''
+        )
+
     def test_to_unicode_str(self):
         self.assertEqual(
             string_utils.to_unicode('BRASILIA/PLANO PILOTO'),
