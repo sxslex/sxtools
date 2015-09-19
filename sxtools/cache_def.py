@@ -1,12 +1,24 @@
-# -*- encoding: utf-8 -*-
-# -----------------------------------------------------------------------------
-# @name:        cache_def.py
-# @description: Allow decorate a method with a cache to increase
-#               performance of costly methods
-# @author:      SleX - slex@slex.com.br
-# @created:     2013-01-30
-# @version:     0.2
-# -----------------------------------------------------------------------------
+# -*- coding: utf-8 -*-
+#
+# Copyright 2015 Alexandre Villela (SleX) <https://github.com/sxslex/sxtools/>
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Allow decorate a method with a cache to increase
+# performance of costly methods
+#    by sx.slex@gmail.com
+
 import os
 import pprint
 import hashlib
@@ -87,7 +99,6 @@ def _setcontextfile(pathfile, context, ftype='pickle'):
     finally:
         f.close()
         os.chmod(pathfile, 0664)
-    return False
 
 
 def _getcache(config, *args, **kwargs):
@@ -113,31 +124,29 @@ def _getcache(config, *args, **kwargs):
                 60 * 24 * 7
             ),
             debug=config.get('debug'),
-            ftype=config.get('ftype', 'literal')
+            ftype=config.get('ftype', 'pickle')
         )
     return None
 
 
 def _setcache(config, context, *args, **kwargs):
-    if config.get('path', ''):
-        newkwargs = kwargs.copy()
-        if 'ignore_cache' in newkwargs:
-            newkwargs.pop('ignore_cache')
-        seed = pprint.pformat([args, newkwargs])
-        pathfile = _getpathfiledir(
-            config['path'],
-            hashlib.md5(
-                config.get('seed', '') + config['path'] + seed
-            ).hexdigest(),
-        )
-        if config.get('debug'):
-            print([pathfile, seed])
-        return _setcontextfile(
-            pathfile=pathfile,
-            context=context,
-            ftype=config.get('ftype', 'literal')
-        )
-    return False
+    newkwargs = kwargs.copy()
+    if 'ignore_cache' in newkwargs:
+        newkwargs.pop('ignore_cache')
+    seed = pprint.pformat([args, newkwargs])
+    pathfile = _getpathfiledir(
+        config['path'],
+        hashlib.md5(
+            config.get('seed', '') + config['path'] + seed
+        ).hexdigest(),
+    )
+    if config.get('debug'):
+        print([pathfile, seed])
+    return _setcontextfile(
+        pathfile=pathfile,
+        context=context,
+        ftype=config.get('ftype', 'literal')
+    )
 
 
 class _CacheDef(object):
