@@ -38,7 +38,7 @@ class GenericImage(object):
         background_color=(203, 203, 203),
         text_color=(149, 149, 149),
         font_size=24,
-        font_family=CACHE_PATH + '/fonts/Arialn.ttf'
+        font_family='arial'
     ):
         self.text = text
         self.width = width
@@ -55,8 +55,6 @@ class GenericImage(object):
             (self.width, self.height), color=self.background_color
         )
         draw = ImageDraw.Draw(img)
-        if not os.path.exists(self.font_family):
-            raise Exception('file does not exist: ' + str(self.font_family))
         fontt = ImageFont.truetype(
             self.font_family,
             self.font_size
