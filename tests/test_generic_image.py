@@ -21,6 +21,8 @@ import os
 import unittest
 import tempfile
 from sxtools import GenericImage
+PROJECT_APPLICATION_PATH = os.path.dirname(os.path.abspath(__file__))
+CACHE_PATH = PROJECT_APPLICATION_PATH
 
 
 class TestGenericImage(unittest.TestCase):
@@ -41,7 +43,11 @@ class TestGenericImage(unittest.TestCase):
 
     def test_geretic_image_create_name(self):
         filename = os.path.join(tempfile.gettempdir(), 'file_image.jpg')
-        gi = GenericImage(iformat='JPEG')
+        gi = GenericImage(
+            iformat='JPEG',
+            font_size=24,
+            font_family=os.path.join(CACHE_PATH, 'fonts/Arialn.ttf')
+        )
         gi.save(filename)
         self.assertTrue(os.path.exists(filename))
         os.unlink(filename)

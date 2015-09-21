@@ -18,13 +18,10 @@
 # Lets you create a generic image to use in development servers
 #    by sx.slex@gmail.com
 
-import os
 from PIL import Image
 from PIL import ImageDraw
 from PIL import ImageFont
 from StringIO import StringIO
-PROJECT_APPLICATION_PATH = os.path.dirname(os.path.abspath(__file__))
-CACHE_PATH = PROJECT_APPLICATION_PATH
 
 
 class GenericImage(object):
