@@ -1,4 +1,5 @@
 pylint
 pytest
+yanc
 nose
-Pillow
+Pillow==2.9.0
