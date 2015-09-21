@@ -17,6 +17,9 @@
 #
 #    by sx.slex@gmail.com
 
+from sxtools.cache_def import _loads
+from sxtools.cache_def import _dumps
+from sxtools.cache_def import _getcontextfile
 from sxtools import cache_def
 import unittest
 import tempfile
@@ -89,9 +92,30 @@ class TestCacheDef(unittest.TestCase):
         f.write('.')
         f.close()
         self.assertRaises(
-            Exception, foo,
-            (1, 2)
+            Exception,
+            foo,
+            a=1,
+            b=2
         )
+
+    def test_cache_def_ftype_invalid_loads(self):
+        self.assertRaises(
+            Exception,
+            _loads,
+            s='/',
+            ftype='slex'
+        )
+
+    def test_cache_def_ftype_invalid_dumps(self):
+        self.assertRaises(
+            Exception,
+            _dumps,
+            s='/',
+            ftype='slex'
+        )
+
+    def test_cache_def_invalid_getcontextfile(self):
+        self.assertIsNone(_getcontextfile(pathfile='/xpto/'))
 
     def test_cache_def_full(self):
         @cache_def(

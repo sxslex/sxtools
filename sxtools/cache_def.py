@@ -38,11 +38,11 @@ def _loads(s, ftype='pickle'):
 
 
 def _dumps(s, ftype='pickle'):
-    if ftype == 'literal':
-        return s.__repr__()
     if ftype == 'pickle':
         import cPickle
         return cPickle.dumps(s)
+    if ftype == 'literal':
+        return s.__repr__()
     raise Exception('ftype "%s" not supported' % ftype)
 
 
