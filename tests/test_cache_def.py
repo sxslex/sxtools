@@ -55,6 +55,7 @@ class TestCacheDef(unittest.TestCase):
             return a + b
         self.assertEqual(3, foo(1, 2))
         self.assertEqual(3, foo(1, 2))
+        shutil.rmtree(os.path.join(path_default, 'foo_basic'))
 
     def test_cache_def_literal(self):
         @cache_def(
@@ -70,6 +71,7 @@ class TestCacheDef(unittest.TestCase):
             return a + b
         self.assertEqual(3, foo(1, 2))
         self.assertEqual(3, foo(1, 2))
+        shutil.rmtree(os.path.join(path_default, 'foo_literal'))
 
     def test_cache_def_ftype_invalid(self):
         @cache_def(
@@ -113,3 +115,4 @@ class TestCacheDef(unittest.TestCase):
         foo_executando = True
         self.assertEqual(4, foo(1, 3, ignore_cache=True))
         self.assertTrue(foo_executando)
+        shutil.rmtree(os.path.join(path_default, 'def_full'))
