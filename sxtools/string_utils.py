@@ -71,7 +71,7 @@ def to_unicode(s, encodings=['utf-8', 'latin-1']):
     if isinstance(s, (dict)):
         in_dict = {}
         for key in s:
-            in_dict.update({key: s[key]})
+            in_dict[to_unicode(key)] = to_unicode(s[key])
         return in_dict
     elif isinstance(s, str):
         for encoding in encodings:
