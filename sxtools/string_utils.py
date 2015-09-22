@@ -69,7 +69,10 @@ def to_unicode(s, encodings=['utf-8', 'latin-1']):
     if isinstance(s, (list, tuple)):
         return [to_unicode(i) for i in s]
     if isinstance(s, (dict)):
-        return {key: s[key] for key in s}
+        in_dict = {}
+        for key in s:
+            in_dict[to_unicode(key)] = to_unicode(s[key])
+        return in_dict
     elif isinstance(s, str):
         for encoding in encodings:
             try:
