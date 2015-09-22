@@ -20,10 +20,12 @@
 from sxtools.cache_def import _loads
 from sxtools.cache_def import _dumps
 from sxtools.cache_def import _getcontextfile
+from sxtools.cache_def import _setcontextfile
 from sxtools import cache_def
 import unittest
 import tempfile
 import shutil
+import time
 import os
 foo_executando = False
 path_default = os.path.join(tempfile.gettempdir(), 'cache_def')
@@ -53,12 +55,10 @@ class TestCacheDef(unittest.TestCase):
             debug=True
         )
         def foo(a, b):
-            global foo_executando
-            foo_executando = True
             return a + b
         self.assertEqual(3, foo(1, 2))
         self.assertEqual(3, foo(1, 2))
-        shutil.rmtree(os.path.join(path_default, 'foo_basic'))
+        shutil.rmtree(path_default)
 
     def test_cache_def_literal(self):
         @cache_def(
@@ -69,12 +69,10 @@ class TestCacheDef(unittest.TestCase):
             ftype='literal'
         )
         def foo(a, b):
-            global foo_executando
-            foo_executando = True
             return a + b
         self.assertEqual(3, foo(1, 2))
         self.assertEqual(3, foo(1, 2))
-        shutil.rmtree(os.path.join(path_default, 'foo_literal'))
+        shutil.rmtree(path_default)
 
     def test_cache_def_ftype_invalid(self):
         @cache_def(
@@ -85,9 +83,9 @@ class TestCacheDef(unittest.TestCase):
             ftype='slex'
         )
         def foo(a, b):
-            global foo_executando
-            foo_executando = True
             return a + b
+        if not os.path.exists(path_default):
+            os.mkdir(path_default, 0777)
         f = open(os.path.join(path_default, 'ftype_invalid'), 'w')
         f.write('.')
         f.close()
@@ -97,6 +95,7 @@ class TestCacheDef(unittest.TestCase):
             a=1,
             b=2
         )
+        shutil.rmtree(path_default)
 
     def test_cache_def_ftype_invalid_loads(self):
         self.assertRaises(
@@ -118,6 +117,8 @@ class TestCacheDef(unittest.TestCase):
         self.assertIsNone(_getcontextfile(pathfile='/xpto/'))
 
     def test_cache_def_full(self):
+        global foo_executando
+
         @cache_def(
             # seed so that the cache be saved alone
             seed='def_full',
@@ -139,4 +140,77 @@ class TestCacheDef(unittest.TestCase):
         foo_executando = True
         self.assertEqual(4, foo(1, 3, ignore_cache=True))
         self.assertTrue(foo_executando)
-        shutil.rmtree(os.path.join(path_default, 'def_full'))
+        shutil.rmtree(path_default)
+
+    def test__getcontextfile_file_corrupt(self):
+        if not os.path.exists(path_default):
+            os.mkdir(path_default, 0777)
+        pathfile = os.path.join(path_default, 'corrupt')
+        if os.path.exists(pathfile):
+            os.unlink(pathfile)
+        _setcontextfile(
+            pathfile=pathfile,
+            context=dict(a='1'),
+            ftype='literal'
+        )
+        self.assertIsNone(
+            _getcontextfile(
+                pathfile=pathfile,
+                minuteexpire=5,
+                debug=False,
+                ftype='pickle'
+            )
+        )
+        shutil.rmtree(path_default)
+
+    def test__getcontextfile_is_dir(self):
+        if os.path.exists(path_default):
+            shutil.rmtree(path_default)
+        os.mkdir(path_default, 0777)
+        pathfile = os.path.join(path_default, 'directore')
+        os.mkdir(pathfile, 0777)
+        self.assertIsNone(
+            _getcontextfile(
+                pathfile=pathfile,
+                minuteexpire=5,
+                debug=False,
+                ftype='pickle'
+            )
+        )
+        shutil.rmtree(path_default)
+
+    def test_cache_def_expired(self):
+        global foo_executando
+
+        @cache_def(
+            # seed so that the cache be saved alone
+            seed='def_expired',
+            # directory cache
+            path=path_default,
+            # cache time in minutes
+            minuteexpire=0,  # menus de 1 segundo
+            # debug mode
+            debug=False
+        )
+        def foo(a, b):
+            global foo_executando
+
+            foo_executando = True
+            return a + b
+        foo_executando = False
+        self.assertEqual(4, foo(1, 3))
+        self.assertTrue(foo_executando)
+        time.sleep(0.01)
+        foo_executando = False
+        self.assertEqual(4, foo(1, 3))
+        self.assertTrue(foo_executando)
+        shutil.rmtree(path_default)
+
+    def test_cache_def_not_path(self):
+        @cache_def(
+            # seed so that the cache be saved alone
+            seed='not_path'
+        )
+        def foo(a, b):
+            return a + b
+        self.assertEqual(4, foo(1, 3))
