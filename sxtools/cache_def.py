@@ -69,11 +69,14 @@ def _getcontextfile(pathfile, minuteexpire=5, debug=False, ftype='pickle'):
         return None
     timestamp = datetime.datetime.fromtimestamp(os.path.getmtime(pathfile))
     r = (datetime.datetime.now() - timestamp)
-    horas = ((r.days * 24 * 60) + r.seconds / 60)
+    horas = ((r.days * 24 * 60) + r.seconds / 60.0)
     if debug:
         print('expires in %s minutes' % str(minuteexpire - horas))
+    if os.path.isdir(pathfile):
+        os.rmdir(pathfile)
+        return None
     if horas < minuteexpire:
-        f = open(pathfile, 'r')
+        f = open(pathfile, 'rb')
         try:
             try:
                 return _loads(f.read(), ftype=ftype)
@@ -81,18 +84,14 @@ def _getcontextfile(pathfile, minuteexpire=5, debug=False, ftype='pickle'):
                 return None
         finally:
             f.close()
-    else:
-        if os.path.isdir(pathfile):
-            os.rmdir(pathfile)
-        else:
-            os.remove(pathfile)
+    os.unlink(pathfile)
     return None
 
 
 def _setcontextfile(pathfile, context, ftype='pickle'):
     if os.path.exists(pathfile):
-        os.remove(pathfile)
-    f = open(pathfile, 'w')
+        os.unlink(pathfile)
+    f = open(pathfile, 'wb')
     try:
         f.write(_dumps(context, ftype=ftype))
         return True
