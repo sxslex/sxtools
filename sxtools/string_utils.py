@@ -68,7 +68,7 @@ def capitalize_name(
 def to_unicode(s, encodings=['utf-8', 'latin-1']):
     if isinstance(s, (list, tuple)):
         return [to_unicode(i) for i in s]
-    if isinstance(s, (dict)):
+    if isinstance(s, dict):
         in_dict = {}
         for key in s:
             in_dict[to_unicode(key)] = to_unicode(s[key])
@@ -79,4 +79,18 @@ def to_unicode(s, encodings=['utf-8', 'latin-1']):
                 return s.decode(encoding)
             except:
                 pass
+    return s
+
+
+def to_encode(s, encoding='utf-8'):
+    s = to_unicode(s)
+    if isinstance(s, unicode):
+        return s.encode(encoding)
+    if isinstance(s, (list, tuple)):
+        return [to_encode(i) for i in s]
+    if isinstance(s, dict):
+        in_dict = {}
+        for key in s:
+            in_dict[to_encode(key, encoding)] = to_encode(s[key], encoding)
+        return in_dict
     return s
