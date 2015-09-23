@@ -76,3 +76,43 @@ class TestStringUtils(unittest.TestCase):
             ),
             u'Olá'
         )
+
+    def test_to_unicode_str(self):
+        self.assertEqual(
+            string_utils.to_unicode('BRASILIA/PLANO PILOTO'),
+            u'BRASILIA/PLANO PILOTO'
+        )
+
+    def test_to_encode_list(self):
+        self.assertListEqual(
+            string_utils.to_encode(
+                ['BRASÍLIA/PLANO PILOTO', 1, True, u'Bolas']
+            ),
+            ['BRASÍLIA/PLANO PILOTO', 1, True, 'Bolas']
+        )
+
+    def test_to_encode_dict(self):
+        self.assertDictEqual(
+            string_utils.to_encode(
+                dict(name=u'BRASÍLIA/PLANO PILOTO', idade=1, sport='Tênis')
+            ),
+            dict(name='BRASÍLIA/PLANO PILOTO', idade=1, sport='Tênis')
+        )
+
+    def test_to_encode_latin(self):
+        self.assertEquals(
+            string_utils.to_encode(
+                'Ol\xe1'
+            ),
+            'Olá'
+        )
+    def test_to_encode_latin_dict(self):
+        self.assertEquals(
+            string_utils.to_encode({
+            }),
+            {
+                'item2': 'olá mundó!',
+                'item3': 'olá sém noção',
+                'item1': 'Caçamba-trêmula'
+            }
+        )

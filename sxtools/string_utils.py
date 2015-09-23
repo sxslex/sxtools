@@ -93,6 +93,4 @@ def to_encode(s, encoding='utf-8'):
         for key in s:
             in_dict[to_encode(key, encoding)] = to_encode(s[key], encoding)
         return in_dict
-    elif isinstance(s, str):
-        return s.encode(encoding)
     return s
