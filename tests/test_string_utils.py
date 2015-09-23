@@ -109,6 +109,9 @@ class TestStringUtils(unittest.TestCase):
     def test_to_encode_latin_dict(self):
         self.assertEquals(
             string_utils.to_encode({
+                'item2': 'olá mundó!',
+                'item3': 'ol\xe1 s\xe9m no\xe7\xe3o',
+                'item1': u'Caçamba-trêmula'
             }),
             {
                 'item2': 'olá mundó!',
