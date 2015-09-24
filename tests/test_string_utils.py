@@ -77,12 +77,6 @@ class TestStringUtils(unittest.TestCase):
             u'Olá'
         )
 
-    def test_to_unicode_str(self):
-        self.assertEqual(
-            string_utils.to_unicode('BRASILIA/PLANO PILOTO'),
-            u'BRASILIA/PLANO PILOTO'
-        )
-
     def test_to_encode_list(self):
         self.assertListEqual(
             string_utils.to_encode(
@@ -106,6 +100,7 @@ class TestStringUtils(unittest.TestCase):
             ),
             'Olá'
         )
+
     def test_to_encode_latin_dict(self):
         self.assertEquals(
             string_utils.to_encode({
@@ -118,4 +113,20 @@ class TestStringUtils(unittest.TestCase):
                 'item3': 'olá sém noção',
                 'item1': 'Caçamba-trêmula'
             }
+        )
+
+    def test_remove_accents_1(self):
+        self.assertEquals(
+            string_utils.remove_accents(
+                'Olá'
+            ),
+            'Ola'
+        )
+
+    def test_remove_accents_2(self):
+        self.assertEquals(
+            string_utils.remove_accents(
+                u'Olá',
+            ),
+            'Ola'
         )
