@@ -16,7 +16,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # Functions to work with packets strings
-#    by sx.slex@gmail.com
+#   sx.slex@gmail.com
+# Thanks:
+#   @denisfrm
 #
 
 from __future__ import unicode_literals
@@ -82,15 +84,31 @@ def to_unicode(s, encodings=['utf-8', 'latin-1']):
     return s
 
 
-def to_encode(s, encoding='utf-8'):
+def to_encode(s, encoding='utf-8', errors='strict'):
+    """
+Encodes "DEEP" S using the codec registered for encoding. encoding defaults
+to the default encoding. errors may be given to set a different error
+handling scheme. Default is 'strict' meaning that encoding errors raise
+a UnicodeEncodeError. Other possible values are 'ignore', 'replace' and
+'xmlcharrefreplace' as well as any other name registered with
+codecs.register_error that can handle UnicodeEncodeErrors.
+    """
     s = to_unicode(s)
     if isinstance(s, unicode):
-        return s.encode(encoding)
+        return s.encode(encoding, errors)
     if isinstance(s, (list, tuple)):
-        return [to_encode(i) for i in s]
+        return [to_encode(i, encoding=encoding, errors=errors) for i in s]
     if isinstance(s, dict):
-        in_dict = {}
+        new_dict = {}
         for key in s:
-            in_dict[to_encode(key, encoding)] = to_encode(s[key], encoding)
-        return in_dict
+            new_dict[
+                to_encode(key, encoding=encoding, errors=errors)
+            ] = to_encode(s[key], encoding=encoding, errors=errors)
+        return new_dict
     return s
+
+
+def remove_accents(s):
+    import unicodedata
+    s = to_unicode(s)
+    return unicodedata.normalize('NFKD', s).encode('ASCII', 'ignore')
