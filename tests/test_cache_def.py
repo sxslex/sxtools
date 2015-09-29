@@ -43,7 +43,7 @@ except Exception:
 
 class TestCacheDef(unittest.TestCase):
 
-    def test_cache_def_basic(self):
+    def test_0_cache_def_basic(self):
         @cache_def(
             # seed so that the cache be saved alone
             seed='foo_basic',
@@ -60,7 +60,7 @@ class TestCacheDef(unittest.TestCase):
         self.assertEqual(3, foo(1, 2))
         shutil.rmtree(path_default)
 
-    def test_cache_def_literal(self):
+    def test_01_cache_def_literal(self):
         @cache_def(
             seed='foo_literal',
             path=path_default,
@@ -74,7 +74,7 @@ class TestCacheDef(unittest.TestCase):
         self.assertEqual(3, foo(1, 2))
         shutil.rmtree(path_default)
 
-    def test_cache_def_ftype_invalid(self):
+    def test_02_cache_def_ftype_invalid(self):
         @cache_def(
             seed='ftype_invalid',
             path=path_default,
@@ -97,7 +97,7 @@ class TestCacheDef(unittest.TestCase):
         )
         shutil.rmtree(path_default)
 
-    def test_cache_def_ftype_invalid_loads(self):
+    def test_03_cache_def_ftype_invalid_loads(self):
         self.assertRaises(
             Exception,
             _loads,
@@ -105,7 +105,7 @@ class TestCacheDef(unittest.TestCase):
             ftype='slex'
         )
 
-    def test_cache_def_ftype_invalid_dumps(self):
+    def test_04_cache_def_ftype_invalid_dumps(self):
         self.assertRaises(
             Exception,
             _dumps,
@@ -113,10 +113,10 @@ class TestCacheDef(unittest.TestCase):
             ftype='slex'
         )
 
-    def test_cache_def_invalid_getcontextfile(self):
+    def test_05_cache_def_invalid_getcontextfile(self):
         self.assertIsNone(_getcontextfile(pathfile='/xpto/'))
 
-    def test_cache_def_full(self):
+    def test_06_cache_def_full(self):
         global foo_executando
 
         @cache_def(
@@ -142,7 +142,7 @@ class TestCacheDef(unittest.TestCase):
         self.assertTrue(foo_executando)
         shutil.rmtree(path_default)
 
-    def test__getcontextfile_file_corrupt(self):
+    def test_07_getcontextfile_file_corrupt(self):
         if not os.path.exists(path_default):
             os.mkdir(path_default, 0777)
         pathfile = os.path.join(path_default, 'corrupt')
@@ -163,7 +163,7 @@ class TestCacheDef(unittest.TestCase):
         )
         shutil.rmtree(path_default)
 
-    def test__getcontextfile_is_dir(self):
+    def test_08_getcontextfile_is_dir(self):
         if os.path.exists(path_default):
             shutil.rmtree(path_default)
         os.mkdir(path_default, 0777)
@@ -179,7 +179,7 @@ class TestCacheDef(unittest.TestCase):
         )
         shutil.rmtree(path_default)
 
-    def test_cache_def_expired(self):
+    def test_09_cache_def_expired(self):
         global foo_executando
 
         @cache_def(
@@ -206,7 +206,7 @@ class TestCacheDef(unittest.TestCase):
         self.assertTrue(foo_executando)
         shutil.rmtree(path_default)
 
-    def test_cache_def_not_path(self):
+    def test_10_cache_def_not_path(self):
         @cache_def(
             # seed so that the cache be saved alone
             seed='not_path'
@@ -214,3 +214,55 @@ class TestCacheDef(unittest.TestCase):
         def foo(a, b):
             return a + b
         self.assertEqual(4, foo(1, 3))
+
+    def test_11_cache_def_db_cache_info(self):
+        @cache_def(
+            # seed so that the cache be saved alone
+            seed='db_cache_info',
+            # directory cache
+            path=path_default,
+            # cache time in minutes
+            minuteexpire=15,
+            # debug mode
+            debug=True,
+            # user db_cache_info
+            dbcacheinfo=True
+        )
+        def foo(a, b):
+            time.sleep(0.01)
+            return a + b
+        path_db = os.path.join(path_default, 'db_cache_info', 'cache_def.db')
+        if os.path.exists(path_db):
+            os.unlink(path_db)
+        self.assertEqual(3, foo(1, 2))
+        self.assertEqual(8, foo(4, 4))
+        self.assertEqual(8, foo(4, 4))
+        self.assertEqual(8, foo(4, 4))
+        self.assertEqual(9, foo(5, 4))
+        self.assertEqual(3, foo(1, 2, ignore_cache=True))
+        self.assertEqual(9, foo(5, 4))
+        self.assertEqual(9, foo(5, 4))
+        self.assertEqual(9, foo(5, 4))
+        self.assertTrue(
+            os.path.exists(
+                path_db
+            )
+        )
+        import sqlite3
+        import pprint
+        con = sqlite3.connect(path_db)
+        cur = con.cursor()
+        try:
+            resp = cur.execute(
+                '''
+                SELECT * FROM cache
+                '''
+            )
+            registers = resp.fetchall()
+            pprint.pprint(registers)
+            self.assertEqual(len(registers), 3)
+            self.assertTrue(registers[0][1] > registers[2][1])
+        finally:
+            cur.close()
+            con.close()
+        shutil.rmtree(path_default)
