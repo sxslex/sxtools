@@ -103,8 +103,8 @@ def _setcontextfile(pathfile, context, ftype='pickle'):
 def _getcache(config, *args, **kwargs):
     if os.path.isdir(config.get('path', '')):
         newkwargs = kwargs.copy()
-        if 'ignore_cache' in newkwargs:
-            newkwargs.pop('ignore_cache')
+        if 'renew_cache' in newkwargs:
+            newkwargs.pop('renew_cache')
         seed = pprint.pformat([args, newkwargs])
         pathfile = _getpathfiledir(
             config['path'],
@@ -130,8 +130,8 @@ def _getcache(config, *args, **kwargs):
 
 def _setcache(config, context, *args, **kwargs):
     newkwargs = kwargs.copy()
-    if 'ignore_cache' in newkwargs:
-        newkwargs.pop('ignore_cache')
+    if 'renew_cache' in newkwargs:
+        newkwargs.pop('renew_cache')
     seed = pprint.pformat([args, newkwargs])
     shash = hashlib.md5(
         config.get('seed', '') + config['path'] + seed
@@ -269,7 +269,7 @@ class _CacheDef(object):
         @wraps(call)
         def newdef(*args, **kwargs):
             resp = None
-            if not kwargs.get('ignore_cache'):
+            if not kwargs.get('renew_cache'):
                 resp = _getcache(
                     self.config,
                     *args,
@@ -279,11 +279,11 @@ class _CacheDef(object):
                 if self.config.get('debug'):
                     print('not cache')
                 if (
-                    'ignore_cache' not in call.func_code.co_varnames
+                    'renew_cache' not in call.func_code.co_varnames
                 ) and (
-                    'ignore_cache' in kwargs
+                    'renew_cache' in kwargs
                 ):
-                    kwargs.pop('ignore_cache')
+                    kwargs.pop('renew_cache')
                 resp = call(*args, **kwargs)
                 _setcache(
                     self.config,
@@ -373,7 +373,7 @@ def cache_def(
 
 #     # ignore cache
 #     start = datetime.datetime.now()
-#     print 'test 4: %d ' % foo(1, 2, ignore_cache=True)
+#     print 'test 4: %d ' % foo(1, 2, renew_cache=True)
 #     print 'cost: %s' % str(datetime.datetime.now() - start)
 
 #     # it takes three seconds

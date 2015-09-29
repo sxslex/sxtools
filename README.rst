@@ -51,7 +51,7 @@ Using sxtools
 
     # ignore cache
     start = datetime.datetime.now()
-    print 'test 4: %d ' % foo(1, 2, ignore_cache=True)
+    print 'test 4: %d ' % foo(1, 2, renew_cache=True)
     print 'cost: %s' % str(datetime.datetime.now() - start)
 
     # it takes three seconds

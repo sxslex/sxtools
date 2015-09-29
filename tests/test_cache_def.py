@@ -139,7 +139,7 @@ class TestCacheDef(unittest.TestCase):
         self.assertEqual(4, foo(1, 3))
         self.assertFalse(foo_executando)
         foo_executando = True
-        self.assertEqual(4, foo(1, 3, ignore_cache=True))
+        self.assertEqual(4, foo(1, 3, renew_cache=True))
         self.assertTrue(foo_executando)
         shutil.rmtree(path_default)
 
@@ -240,7 +240,7 @@ class TestCacheDef(unittest.TestCase):
         self.assertEqual(8, foo(4, 4))
         self.assertEqual(8, foo(4, 4))
         self.assertEqual(9, foo(5, 4))
-        self.assertEqual(3, foo(1, 2, ignore_cache=True))
+        self.assertEqual(3, foo(1, 2, renew_cache=True))
         self.assertEqual(9, foo(5, 4))
         self.assertEqual(9, foo(5, 4))
         self.assertEqual(9, foo(5, 4))
