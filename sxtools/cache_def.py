@@ -133,12 +133,18 @@ def _setcache(config, context, *args, **kwargs):
     if 'ignore_cache' in newkwargs:
         newkwargs.pop('ignore_cache')
     seed = pprint.pformat([args, newkwargs])
+    shash = hashlib.md5(
+        config.get('seed', '') + config['path'] + seed
+    ).hexdigest()
     pathfile = _getpathfiledir(
         config['path'],
-        hashlib.md5(
-            config.get('seed', '') + config['path'] + seed
-        ).hexdigest(),
+        shash,
     )
+    # add in db cache info
+    if config.get('dbcacheinfo'):
+        _db_cache_add_or_update_cache(
+            config, shash
+        )
     if config.get('debug'):
         print([pathfile, seed])
     return _setcontextfile(
@@ -146,6 +152,76 @@ def _setcache(config, context, *args, **kwargs):
         context=context,
         ftype=config.get('ftype', 'literal')
     )
+
+
+def _db_cache_add_or_update_cache(config, shash):
+    import sqlite3
+    if config.get('debug'):
+        pprint.pprint([
+            'add_or_update_cache',
+            os.path.join(config['path'], 'cache_def.db'),
+            shash
+        ])
+    to_create = not os.path.exists(
+        os.path.join(config['path'], 'cache_def.db')
+    )
+    con = sqlite3.connect(
+        os.path.join(config['path'], 'cache_def.db')
+    )
+    if to_create:
+        _db_cache_create(con)
+    cur = con.cursor()
+    try:
+        try:
+            resp = cur.execute(
+                '''
+                INSERT INTO cache(shash, cachecreate)
+                VALUES(?, ?)
+                ''',
+                (
+                    shash,
+                    datetime.datetime.now(),
+                )
+            )
+            con.commit()
+            return resp.rowcount
+        except sqlite3.IntegrityError:
+            resp = cur.execute(
+                '''
+                UPDATE cache SET cachecreate=?
+                WHERE shash=?
+                ''',
+                (
+                    datetime.datetime.now(),
+                    shash,
+                )
+            )
+            con.commit()
+            return resp.rowcount
+    finally:
+        cur.close()
+        con.close()
+
+
+def _db_cache_create(con):
+    cur = con.cursor()
+    try:
+        cur.execute('''
+            create table if not exists cache (
+                shash varchar primary key,
+                cachecreate timestamp
+            );
+        ''')
+        cur.execute('''
+            create index if not exists
+            idx_cache_cachecreate on cache (cachecreate asc)
+        ''')
+        cur.execute('''
+            create unique index if not exists
+            cache_pk on cache (shash asc)
+        ''')
+    finally:
+        cur.close()
 
 
 class _CacheDef(object):
@@ -160,11 +236,14 @@ class _CacheDef(object):
             minuteexpire -- time in minutes for validity of cache
             debug -- bool active debug mode
             ftype -- so that to store the cache ('pickle', 'literal')
+            dbcacheinfo -- create sqllite info files
 
     """
 
-    def __init__(self, seed, path=None, minuteexpire=60, debug=False,
-                 ftype='pickle'):
+    def __init__(
+        self, seed, path=None, minuteexpire=60, debug=False,
+        ftype='pickle', dbcacheinfo=False
+    ):
 
         if not path:
             path = '/tmp/cachedef'
@@ -175,12 +254,13 @@ class _CacheDef(object):
             'path': path + '/' + seed,
             'debug': debug,
             'minuteexpire': minuteexpire,
-            'ftype': ftype
+            'ftype': ftype,
+            'dbcacheinfo': dbcacheinfo
         }
 
     def __call__(self, call, *args, **kwargs):
         self.config = self.__config.copy()
-        self.config['path'] = self.config['path'] + '/' + call.func_name
+        self.config['path'] = self.config['path']  # + '/' + call.func_name
 
         @wraps(call)
         def newdef(*args, **kwargs):
@@ -216,7 +296,14 @@ class _CacheDef(object):
         return newdef
 
 
-def cache_def(seed, path=None, minuteexpire=60, debug=False, ftype='pickle'):
+def cache_def(
+    seed,
+    path=None,
+    minuteexpire=60,
+    debug=False,
+    ftype='pickle',
+    dbcacheinfo=False
+):
     """
         Decorator responsible for making a cache of the results
         of calling a method in accordance with the reported.
@@ -227,14 +314,15 @@ def cache_def(seed, path=None, minuteexpire=60, debug=False, ftype='pickle'):
             minuteexpire -- time in minutes for validity of cache
             debug -- bool active debug mode
             ftype -- so that to store the cache ('pickle', 'literal')
-
+            dbcacheinfo -- create sqllite info files
     """
     return _CacheDef(
         seed=seed,
         path=path,
         minuteexpire=minuteexpire,
         debug=debug,
-        ftype=ftype
+        ftype=ftype,
+        dbcacheinfo=dbcacheinfo
     )
 
 
