@@ -21,6 +21,7 @@ from sxtools.cache_def import _loads
 from sxtools.cache_def import _dumps
 from sxtools.cache_def import _getcontextfile
 from sxtools.cache_def import _setcontextfile
+from sxtools import cache_def_clear_expired
 from sxtools import cache_def
 import unittest
 import tempfile
@@ -43,7 +44,7 @@ except Exception:
 
 class TestCacheDef(unittest.TestCase):
 
-    def test_0_cache_def_basic(self):
+    def test_00_cache_def_basic(self):
         @cache_def(
             # seed so that the cache be saved alone
             seed='foo_basic',
@@ -52,7 +53,7 @@ class TestCacheDef(unittest.TestCase):
             # cache time in minutes
             minuteexpire=15,
             # debug mode
-            debug=True
+            debug=False
         )
         def foo(a, b):
             return a + b
@@ -114,7 +115,7 @@ class TestCacheDef(unittest.TestCase):
         )
 
     def test_05_cache_def_invalid_getcontextfile(self):
-        self.assertIsNone(_getcontextfile(pathfile='/xpto/'))
+        self.assertIsNone(_getcontextfile(pathfile='/tmp_xpto/'))
 
     def test_06_cache_def_full(self):
         global foo_executando
@@ -224,9 +225,9 @@ class TestCacheDef(unittest.TestCase):
             # cache time in minutes
             minuteexpire=15,
             # debug mode
-            debug=True,
+            debug=False,
             # user db_cache_info
-            dbcacheinfo=True
+            dbcacheinfo='sqlite3'
         )
         def foo(a, b):
             time.sleep(0.01)
@@ -249,7 +250,6 @@ class TestCacheDef(unittest.TestCase):
             )
         )
         import sqlite3
-        import pprint
         con = sqlite3.connect(path_db)
         cur = con.cursor()
         try:
@@ -259,10 +259,32 @@ class TestCacheDef(unittest.TestCase):
                 '''
             )
             registers = resp.fetchall()
-            pprint.pprint(registers)
             self.assertEqual(len(registers), 3)
             self.assertTrue(registers[0][1] > registers[2][1])
         finally:
             cur.close()
             con.close()
         shutil.rmtree(path_default)
+
+    def test_12_cache_def_clear_expired(self):
+        @cache_def(
+            # seed so that the cache be saved alone
+            seed='clear_expired',
+            # directory cache
+            path=path_default,
+            # cache time in minutes
+            minuteexpire=15,
+            # debug mode
+            debug=False,
+            # user db_cache_info
+            dbcacheinfo='sqlite3'
+        )
+        def foo(a, b):
+            time.sleep(0.01)
+            return a + b
+        self.assertEqual(3, foo(1, 2))
+        self.assertTrue(cache_def_clear_expired(
+            seed='clear_expired',
+            path=path_default,
+            minuteexpire=5,  # one day
+        ))
