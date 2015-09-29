@@ -141,8 +141,8 @@ def _setcache(config, context, *args, **kwargs):
         shash,
     )
     # add in db cache info
-    if config.get('dbcacheinfo'):
-        _db_cache_add_or_update_cache(
+    if config.get('dbcacheinfo') == 'sqlite3':
+        _sqlite3_add_or_update_cache(
             config, shash
         )
     if config.get('debug'):
@@ -154,11 +154,11 @@ def _setcache(config, context, *args, **kwargs):
     )
 
 
-def _db_cache_add_or_update_cache(config, shash):
+def _sqlite3_add_or_update_cache(config, shash):
     import sqlite3
     if config.get('debug'):
         pprint.pprint([
-            'add_or_update_cache',
+            'sqlite3_add_or_update_cache',
             os.path.join(config['path'], 'cache_def.db'),
             shash
         ])
@@ -169,7 +169,7 @@ def _db_cache_add_or_update_cache(config, shash):
         os.path.join(config['path'], 'cache_def.db')
     )
     if to_create:
-        _db_cache_create(con)
+        _sqlite3_create(con)
     cur = con.cursor()
     try:
         try:
@@ -203,7 +203,7 @@ def _db_cache_add_or_update_cache(config, shash):
         con.close()
 
 
-def _db_cache_create(con):
+def _sqlite3_create(con):
     cur = con.cursor()
     try:
         cur.execute('''
@@ -236,15 +236,19 @@ class _CacheDef(object):
             minuteexpire -- time in minutes for validity of cache
             debug -- bool active debug mode
             ftype -- so that to store the cache ('pickle', 'literal')
-            dbcacheinfo -- create sqllite info files
+            dbcacheinfo -- create sqllite info files (None, 'sqlite3')
 
     """
 
     def __init__(
-        self, seed, path=None, minuteexpire=60, debug=False,
-        ftype='pickle', dbcacheinfo=False
+        self,
+        seed,
+        path=None,
+        minuteexpire=60,
+        debug=False,
+        ftype='pickle',
+        dbcacheinfo=None
     ):
-
         if not path:
             path = '/tmp/cachedef'
             if platform.system() == 'Windows':
@@ -296,13 +300,31 @@ class _CacheDef(object):
         return newdef
 
 
+def cache_def_clear_expired(
+    seed,
+    path,
+    minuteexpire,
+    osmode=True
+):
+    import os
+    pathseed = os.path.join(path, seed).replace('\\', '/')
+    if os.path.exists(pathseed):
+        if osmode:
+            command = 'find %s -type f -mmin +%s -exec rm -rf {} \\;' % (
+                pathseed,
+                str(int(minuteexpire))
+            )
+            os.system(command)
+    return True
+
+
 def cache_def(
     seed,
     path=None,
     minuteexpire=60,
     debug=False,
     ftype='pickle',
-    dbcacheinfo=False
+    dbcacheinfo=None
 ):
     """
         Decorator responsible for making a cache of the results
@@ -314,7 +336,7 @@ def cache_def(
             minuteexpire -- time in minutes for validity of cache
             debug -- bool active debug mode
             ftype -- so that to store the cache ('pickle', 'literal')
-            dbcacheinfo -- create sqllite info files
+            dbcacheinfo -- create sqllite info files (None, 'sqlite3')
     """
     return _CacheDef(
         seed=seed,

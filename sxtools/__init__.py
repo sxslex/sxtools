@@ -15,8 +15,9 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-__version__ = '0.0.2'
+__version__ = '0.0.3'
 __description__ = 'sxtools - Set of libraries to facilitate the work'
 
 from sxtools.cache_def import cache_def
+from sxtools.cache_def import cache_def_clear_expired
 from sxtools.generic_image import GenericImage
