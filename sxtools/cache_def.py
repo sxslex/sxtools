@@ -18,6 +18,7 @@
 # Allow decorate a method with a cache to increase
 # performance of costly methods
 #    by sx.slex@gmail.com
+#    cache_def - version 0.0.3
 
 import os
 import pprint
