@@ -21,3 +21,5 @@ __description__ = 'sxtools - Set of libraries to facilitate the work'
 from sxtools.cache_def import cache_def
 from sxtools.cache_def import cache_def_clear_expired
 from sxtools.generic_image import GenericImage
+from sxtools.sqlite_single import SqliteSingle
+
