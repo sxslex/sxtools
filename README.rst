@@ -149,7 +149,8 @@ All you need is:
 
 ::
 
-    $ make test
+    $ source alias.sh
+    $ nt sxtools tests/*.py
 
 .. image:: https://badges.gitter.im/Join%20Chat.svg
    :alt: Join the chat at https://gitter.im/sxslex/sxtools
