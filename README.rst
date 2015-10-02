@@ -95,6 +95,44 @@ Using sxtools
     >>> [u'BRASILIA/PLANO PILOTO', 1, True, u'Bolas']
 
 
+- SqliteSingle:
+
+.. code-block:: python
+
+    from sxtools import SqliteSingle
+
+    if os.path.exists('students.db'):
+        os.unlink('students.db')
+    students = SqliteSingle(
+        'students.db',
+        '''
+           create table students (
+               id_students          integer primary key,
+               name                 varchar(100),
+               salary               float,
+               birthdate            date
+           );
+           create table assessments (
+               id_assessments       integer primary key,
+               id_students          integer,
+               grade                float
+           );
+        '''
+    )
+    print students.insert(
+        'students',
+        values=dict(id_students=1, name='slex', salary=3500.10)
+    )
+    print students.insert(
+        'students',
+        values=dict(id_students=2, name='denis', salary=8000.50)
+    )
+    print students.select(
+        'students',
+        [dict(f='id_students', v=2)]
+    )
+
+
 development
 --------
 
