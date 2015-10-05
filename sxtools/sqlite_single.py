@@ -27,7 +27,7 @@ import os
 
 
 class SqliteSingle():
-    def __init__(self, filename, sql_create, debug=False):
+    def __init__(self, filename, sql_create=None, debug=False):
         self.filename = filename
         self.sql_create = sql_create
         self.con = None
@@ -40,7 +40,7 @@ class SqliteSingle():
         to_create = not os.path.exists(self.filename)
         self.con = sqlite3.connect(self.filename)
         self.cur = self.con.cursor()
-        if to_create:
+        if to_create and self.sql_create:
             self.cur.executescript(self.sql_create)
             self.con.commit()
 
