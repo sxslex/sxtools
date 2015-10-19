@@ -28,7 +28,10 @@ CACHE_PATH = PROJECT_APPLICATION_PATH
 class TestGenericImage(unittest.TestCase):
 
     def test_geretic_image_base64(self):
-        gi = GenericImage(iformat='JPEG')
+        gi = GenericImage(
+            iformat='JPEG',
+            font_family=os.path.join(CACHE_PATH, 'fonts/Arialn.ttf')
+        )
         self.assertIn(
             'data:image/jpeg;base64,',
             gi.base64()
@@ -36,7 +39,10 @@ class TestGenericImage(unittest.TestCase):
 
     def test_geretic_image_create_obj(self):
         fobj = tempfile.NamedTemporaryFile(delete=False, mode='wb')
-        gi = GenericImage(iformat='JPEG')
+        gi = GenericImage(
+            iformat='JPEG',
+            font_family=os.path.join(CACHE_PATH, 'fonts/Arialn.ttf')
+        )
         filename = gi.save(fobj)
         self.assertTrue(os.path.exists(filename))
         os.unlink(filename)
