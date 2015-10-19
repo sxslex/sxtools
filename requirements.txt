@@ -2,5 +2,4 @@ yanc
 nose
 pylint
 pytest
-sqlite3
-Pillow==2.9.0
+Pillow
