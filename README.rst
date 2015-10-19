@@ -2,6 +2,14 @@
 sxtools
 ======
 
+.. image:: https://badges.gitter.im/Join%20Chat.svg
+   :alt: Join the chat at https://gitter.im/sxslex/sxtools
+   :target: https://gitter.im/sxslex/sxtools?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
+
+.. image:: https://travis-ci.org/sxslex/sxtools.svg?branch=master
+    :target: https://travis-ci.org/sxslex/sxtools
+
+
 The ``sxtools`` Set of libraries to facilitate the work
 
 .. cache_def:: Decorator responsible for making a cache of the results of calling a method in accordance with the reported
@@ -151,8 +159,3 @@ All you need is:
 
     $ source alias.sh
     $ nt sxtools tests/*.py
-
-.. image:: https://badges.gitter.im/Join%20Chat.svg
-   :alt: Join the chat at https://gitter.im/sxslex/sxtools
-   :target: https://gitter.im/sxslex/sxtools?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
-
