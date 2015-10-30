@@ -71,5 +71,11 @@ class TestSqliteSingle(unittest.TestCase):
             ),
             [(2, u'denis', 8000.5, None)]
         )
+        self.assertEqual(
+            students.count(
+                table='students'
+            ),
+            2
+        )
         if os.path.exists(path_db):
             os.unlink(path_db)
