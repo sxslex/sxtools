@@ -77,5 +77,12 @@ class TestSqliteSingle(unittest.TestCase):
             ),
             2
         )
+        self.assertEqual(
+            students.count(
+                table='students',
+                wheres=dict(f='id_students', v=2)
+            ),
+            1
+        )
         if os.path.exists(path_db):
             os.unlink(path_db)
