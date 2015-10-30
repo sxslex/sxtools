@@ -133,7 +133,7 @@ class SqliteSingle():
             )
             return self.cur.fetchall()
 
-    def query(self, sql, params):
+    def query(self, sql, params=[]):
         with self.transaction():
             self.cur.execute(
                 sql,
