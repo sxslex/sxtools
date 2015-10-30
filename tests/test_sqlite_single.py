@@ -27,8 +27,10 @@ path_db = os.path.join(tempfile.gettempdir(), 'students.db')
 class TestSqliteSingle(unittest.TestCase):
 
     def test_01_create_db(self):
-        if os.path.exists(path_db):
+        try:
             os.unlink(path_db)
+        except:
+            pass
         students = SqliteSingle(
             path_db,
             '''
@@ -44,7 +46,7 @@ class TestSqliteSingle(unittest.TestCase):
                    grade                float
                );
             ''',
-            debug=False
+            debug=True
         )
         self.assertEqual(
             students.insert(
@@ -62,8 +64,10 @@ class TestSqliteSingle(unittest.TestCase):
         )
         self.assertListEqual(
             students.select(
-                'students',
-                [dict(f='id_students', v=2)]
+                table='students',
+                fields=['id_students', 'name', 'salary', 'birthdate'],
+                wheres=[dict(f='id_students', v=2)],
+                limit=1
             ),
             [(2, u'denis', 8000.5, None)]
         )
