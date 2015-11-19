@@ -18,8 +18,10 @@
 # Allow decorate a method with a cache to increase
 # performance of costly methods
 #    by sx.slex@gmail.com
-#    cache_def - version 0.0.3
-
+#    cache_def - version 0.0.4
+# Thanks:
+#   @denisfrm
+#
 import os
 import pprint
 import hashlib
@@ -102,30 +104,40 @@ def _setcontextfile(pathfile, context, ftype='pickle'):
 
 
 def _getcache(config, *args, **kwargs):
-    if os.path.isdir(config.get('path', '')):
-        newkwargs = kwargs.copy()
-        if 'renew_cache' in newkwargs:
-            newkwargs.pop('renew_cache')
-        seed = pprint.pformat([args, newkwargs])
-        pathfile = _getpathfiledir(
-            config['path'],
-            hashlib.md5(
-                config.get('seed', '') +
-                config['path'] +
-                seed
-            ).hexdigest(),
-        )
-        if config.get('debug'):
-            print([pathfile, seed])
-        return _getcontextfile(
-            pathfile=pathfile,
-            minuteexpire=config.get(
-                'minuteexpire',
-                60 * 24 * 7
-            ),
-            debug=config.get('debug'),
-            ftype=config.get('ftype', 'pickle')
-        )
+    newkwargs = kwargs.copy()
+    if 'renew_cache' in newkwargs:
+        newkwargs.pop('renew_cache')
+    sss = (
+        config.get('seed', '') +
+        config.get('path', '') +
+        config.get('redishost', '') +
+        pprint.pformat([args, newkwargs])
+    )
+    value_md5 = hashlib.md5(sss).hexdigest()
+    if config.get('redishost'):
+        import redis
+        r = redis.Redis(config.get('redishost'))
+        resp = r.get('cache_' + config.get('seed', '') + '_' + value_md5)
+        if resp:
+            return _loads(resp, ftype=config.get('ftype', 'pickle'))
+        return None
+    if config.get('path'):
+        if os.path.isdir(config.get('path', '')):
+            pathfile = _getpathfiledir(
+                config['path'],
+                value_md5,
+            )
+            if config.get('debug'):
+                print([pathfile, value_md5])
+            return _getcontextfile(
+                pathfile=pathfile,
+                minuteexpire=config.get(
+                    'minuteexpire',
+                    60 * 24 * 7
+                ),
+                debug=config.get('debug'),
+                ftype=config.get('ftype', 'pickle')
+            )
     return None
 
 
@@ -133,96 +145,39 @@ def _setcache(config, context, *args, **kwargs):
     newkwargs = kwargs.copy()
     if 'renew_cache' in newkwargs:
         newkwargs.pop('renew_cache')
-    seed = pprint.pformat([args, newkwargs])
-    shash = hashlib.md5(
-        config.get('seed', '') + config['path'] + seed
+    value_md5 = hashlib.md5(
+        config.get('seed', '') +
+        config.get('path', '') +
+        config.get('redishost', '') +
+        pprint.pformat([args, newkwargs])
     ).hexdigest()
+
+    # cache in redis
+    if config.get('redishost'):
+        import redis
+        r = redis.Redis(config.get('redishost'))
+        r.set(
+            'cache_' + config.get('seed', '') + '_' + value_md5,
+            _dumps(context, ftype=config.get('ftype', 'pickle')),
+            ex=long(config.get(
+                'minuteexpire',
+                60 * 24 * 7
+            ) * 60)
+        )
+        return True
+
+    # cache in file
     pathfile = _getpathfiledir(
         config['path'],
-        shash,
+        value_md5,
     )
-    # add in db cache info
-    if config.get('dbcacheinfo') == 'sqlite3':
-        _sqlite3_add_or_update_cache(
-            config, shash
-        )
     if config.get('debug'):
-        print([pathfile, seed])
+        print([pathfile, value_md5])
     return _setcontextfile(
         pathfile=pathfile,
         context=context,
         ftype=config.get('ftype', 'literal')
     )
-
-
-def _sqlite3_add_or_update_cache(config, shash):
-    import sqlite3
-    if config.get('debug'):
-        pprint.pprint([
-            'sqlite3_add_or_update_cache',
-            os.path.join(config['path'], 'cache_def.db'),
-            shash
-        ])
-    to_create = not os.path.exists(
-        os.path.join(config['path'], 'cache_def.db')
-    )
-    con = sqlite3.connect(
-        os.path.join(config['path'], 'cache_def.db')
-    )
-    if to_create:
-        _sqlite3_create(con)
-    cur = con.cursor()
-    try:
-        try:
-            resp = cur.execute(
-                '''
-                INSERT INTO cache(shash, cachecreate)
-                VALUES(?, ?)
-                ''',
-                (
-                    shash,
-                    datetime.datetime.now(),
-                )
-            )
-            con.commit()
-            return resp.rowcount
-        except sqlite3.IntegrityError:
-            resp = cur.execute(
-                '''
-                UPDATE cache SET cachecreate=?
-                WHERE shash=?
-                ''',
-                (
-                    datetime.datetime.now(),
-                    shash,
-                )
-            )
-            con.commit()
-            return resp.rowcount
-    finally:
-        cur.close()
-        con.close()
-
-
-def _sqlite3_create(con):
-    cur = con.cursor()
-    try:
-        cur.execute('''
-            create table if not exists cache (
-                shash varchar primary key,
-                cachecreate timestamp
-            );
-        ''')
-        cur.execute('''
-            create index if not exists
-            idx_cache_cachecreate on cache (cachecreate asc)
-        ''')
-        cur.execute('''
-            create unique index if not exists
-            cache_pk on cache (shash asc)
-        ''')
-    finally:
-        cur.close()
 
 
 class _CacheDef(object):
@@ -237,7 +192,6 @@ class _CacheDef(object):
             minuteexpire -- time in minutes for validity of cache
             debug -- bool active debug mode
             ftype -- so that to store the cache ('pickle', 'literal')
-            dbcacheinfo -- create sqllite info files (None, 'sqlite3')
 
     """
 
@@ -245,27 +199,29 @@ class _CacheDef(object):
         self,
         seed,
         path=None,
+        redishost=None,
         minuteexpire=60,
         debug=False,
-        ftype='pickle',
-        dbcacheinfo=None
+        ftype='pickle'
     ):
-        if not path:
+        if not path and not redishost:
             path = '/tmp/cachedef'
             if platform.system() == 'Windows':
                 path = 'c:/tmp/cachedef'
         self.__config = {
             'seed': seed,
-            'path': path + '/' + seed,
             'debug': debug,
             'minuteexpire': minuteexpire,
             'ftype': ftype,
-            'dbcacheinfo': dbcacheinfo
         }
+        if redishost:
+            self.__config['redishost'] = redishost
+        elif path:
+            self.__config['path'] = path + '/' + seed
 
     def __call__(self, call, *args, **kwargs):
         self.config = self.__config.copy()
-        self.config['path'] = self.config['path']  # + '/' + call.func_name
+        # self.config['path'] = self.config['path']  # + '/' + call.func_name
 
         @wraps(call)
         def newdef(*args, **kwargs):
@@ -321,11 +277,11 @@ def cache_def_clear_expired(
 
 def cache_def(
     seed,
+    redishost=None,
     path=None,
     minuteexpire=60,
     debug=False,
     ftype='pickle',
-    dbcacheinfo=None
 ):
     """
         Decorator responsible for making a cache of the results
@@ -337,15 +293,14 @@ def cache_def(
             minuteexpire -- time in minutes for validity of cache
             debug -- bool active debug mode
             ftype -- so that to store the cache ('pickle', 'literal')
-            dbcacheinfo -- create sqllite info files (None, 'sqlite3')
     """
     return _CacheDef(
         seed=seed,
+        redishost=redishost,
         path=path,
         minuteexpire=minuteexpire,
         debug=debug,
         ftype=ftype,
-        dbcacheinfo=dbcacheinfo
     )
 
 

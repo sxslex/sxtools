@@ -1,5 +1,6 @@
 yanc
 nose
+redis
 pylint
 pytest
 Pillow

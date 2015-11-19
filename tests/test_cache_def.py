@@ -220,21 +220,16 @@ class TestCacheDef(unittest.TestCase):
         @cache_def(
             # seed so that the cache be saved alone
             seed='db_cache_info',
-            # directory cache
-            path=path_default,
+            # redis host
+            redishost='127.0.0.1',
             # cache time in minutes
             minuteexpire=15,
             # debug mode
             debug=False,
-            # user db_cache_info
-            dbcacheinfo='sqlite3'
         )
         def foo(a, b):
             time.sleep(0.01)
             return a + b
-        path_db = os.path.join(path_default, 'db_cache_info', 'cache_def.db')
-        if os.path.exists(path_db):
-            os.unlink(path_db)
         self.assertEqual(3, foo(1, 2))
         self.assertEqual(8, foo(4, 4))
         self.assertEqual(8, foo(4, 4))
@@ -244,47 +239,3 @@ class TestCacheDef(unittest.TestCase):
         self.assertEqual(9, foo(5, 4))
         self.assertEqual(9, foo(5, 4))
         self.assertEqual(9, foo(5, 4))
-        self.assertTrue(
-            os.path.exists(
-                path_db
-            )
-        )
-        import sqlite3
-        con = sqlite3.connect(path_db)
-        cur = con.cursor()
-        try:
-            resp = cur.execute(
-                '''
-                SELECT * FROM cache
-                '''
-            )
-            registers = resp.fetchall()
-            self.assertEqual(len(registers), 3)
-            self.assertTrue(registers[0][1] > registers[2][1])
-        finally:
-            cur.close()
-            con.close()
-        shutil.rmtree(path_default)
-
-    def test_12_cache_def_clear_expired(self):
-        @cache_def(
-            # seed so that the cache be saved alone
-            seed='clear_expired',
-            # directory cache
-            path=path_default,
-            # cache time in minutes
-            minuteexpire=15,
-            # debug mode
-            debug=False,
-            # user db_cache_info
-            dbcacheinfo='sqlite3'
-        )
-        def foo(a, b):
-            time.sleep(0.01)
-            return a + b
-        self.assertEqual(3, foo(1, 2))
-        self.assertTrue(cache_def_clear_expired(
-            seed='clear_expired',
-            path=path_default,
-            minuteexpire=5,  # one day
-        ))
