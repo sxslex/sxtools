@@ -35,8 +35,10 @@ Using sxtools
     from sxtools import cache_def
     import datetime
 
-
-    @cache_def(seed='foo')
+    @cache_def(
+        seed='foo',
+        # redishost='127.0.0.1'  # or using redis
+    )
     def foo(a, b):
         import time
         time.sleep(3)
