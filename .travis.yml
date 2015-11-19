@@ -4,6 +4,6 @@ python:
 install:
   - pip install -r requirements.txt
 script:
-  - nosetests -dsv --with-yanc --with-coverage --cover-package tabela_fipe tests/test_*.py
+  - nosetests -dsv --with-yanc --with-coverage --cover-package . tests/test_*.py
 services:
   - redis-server

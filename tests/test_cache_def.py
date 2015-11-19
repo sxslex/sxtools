@@ -216,7 +216,7 @@ class TestCacheDef(unittest.TestCase):
             return a + b
         self.assertEqual(4, foo(1, 3))
 
-    def test_11_cache_def_db_cache_info(self):
+    def test_11_cache_def_redis(self):
         @cache_def(
             # seed so that the cache be saved alone
             seed='db_cache_info',

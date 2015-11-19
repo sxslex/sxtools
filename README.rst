@@ -151,11 +151,11 @@ Pull requests are very welcomed! Make sure your patches are well tested.
 Running the tests
 --------
 
-Install dev_requirements.txt `pip install -r dev_requirements.txt`
+Install dev_requirements.txt `pip install -r requirements.txt`
 
 All you need is:
 
 ::
 
-    $ source alias.sh
-    $ nt sxtools tests/*.py
+    $ nosetests -dsv --with-yanc --with-coverage --cover-package . tests/test_*.py
+
