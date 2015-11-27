@@ -188,6 +188,7 @@ class _CacheDef(object):
 
         Arguments:
             seed -- string to differentiate the caches
+            redishost -- host redis server
             path -- path to store the cache
             minuteexpire -- time in minutes for validity of cache
             debug -- bool active debug mode
@@ -289,6 +290,7 @@ def cache_def(
 
         Arguments:
             seed -- string to differentiate the caches
+            redishost -- host redis server
             path -- path to store the cache
             minuteexpire -- time in minutes for validity of cache
             debug -- bool active debug mode
