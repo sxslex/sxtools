@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#
+"""Decorator to cache methods."""
 # Copyright 2015 Alexandre Villela (SleX) <https://github.com/sxslex/sxtools/>
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@
 #
 import os
 # import copy
-import types
+# import types
 import pprint
 import hashlib
 import datetime
@@ -179,11 +179,9 @@ def _setcache(config, context, *args, **kwargs):
 
 
 class _CacheDef(object):
-
     """
         Decorator responsible for making a cache of the results
         of calling a method in accordance with the reported.
-
         Arguments:
             seed -- string to differentiate the caches
             redishost -- host redis server
@@ -191,7 +189,6 @@ class _CacheDef(object):
             minuteexpire -- time in minutes for validity of cache
             debug -- bool active debug mode
             ftype -- so that to store the cache ('pickle', 'literal')
-
     """
 
     def __init__(
@@ -225,10 +222,23 @@ class _CacheDef(object):
         @wraps(call)
         def newdef(*args, **kwargs):
             resp = None
-            is_im_class = hasattr(call, 'im_class')
+            is_im_class = (
+                hasattr(args[0], call.__name__) and
+                getattr(args[0], call.__name__) == call
+            )
             xargs = args
             if is_im_class:
                 xargs = args[1:]
+            if self.config.get('debug'):
+                pprint.pprint(
+                    dict(
+                        is_im_class=is_im_class,
+                        xargs=xargs,
+                        kwargs=kwargs,
+                        icall=getattr(args[0], call.__name__),
+                        call=call,
+                    )
+                )
             if not kwargs.get('renew_cache'):
                 resp = _getcache(
                     self.config,
@@ -266,6 +276,7 @@ def cache_def_clear_expired(
     minuteexpire,
     osmode=True
 ):
+    """Exclue os arquivos de cache."""
     import os
     pathseed = os.path.join(path, seed).replace('\\', '/')
     if os.path.exists(pathseed):
