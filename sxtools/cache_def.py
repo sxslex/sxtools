@@ -223,22 +223,21 @@ class _CacheDef(object):
         def newdef(*args, **kwargs):
             resp = None
             is_im_class = (
-                hasattr(args[0], call.__name__) and
-                getattr(args[0], call.__name__) == call
+                hasattr(args[0], call.__name__)
             )
             xargs = args
             if is_im_class:
                 xargs = args[1:]
-            if self.config.get('debug'):
-                pprint.pprint(
-                    dict(
-                        is_im_class=is_im_class,
-                        xargs=xargs,
-                        kwargs=kwargs,
-                        icall=getattr(args[0], call.__name__),
-                        call=call,
-                    )
-                )
+            # if self.config.get('debug'):
+            #     pprint.pprint(
+            #         dict(
+            #             is_im_class=is_im_class,
+            #             xargs=xargs,
+            #             kwargs=kwargs,
+            #             icall=getattr(args[0], call.__name__),
+            #             call=call,
+            #         )
+            #     )
             if not kwargs.get('renew_cache'):
                 resp = _getcache(
                     self.config,
