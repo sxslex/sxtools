@@ -108,8 +108,6 @@ def _setcontextfile(pathfile, context, ftype='pickle'):
 def _gera_hash(config, args, kwargs):
     # Monta o cache da consulta de acordo com os parametros passados
     new_args = args
-    if args and isinstance(args[0], (types.InstanceType, object)):
-        new_args = args[1:]
     newkwargs = kwargs.copy()
     if 'renew_cache' in newkwargs:
         newkwargs.pop('renew_cache')
