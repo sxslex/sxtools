@@ -227,10 +227,14 @@ class _CacheDef(object):
         @wraps(call)
         def newdef(*args, **kwargs):
             resp = None
+            is_im_class = hasattr(call, 'im_class')
+            xargs = args
+            if is_im_class:
+                xargs = args[1:]
             if not kwargs.get('renew_cache'):
                 resp = _getcache(
                     self.config,
-                    *args,
+                    *xargs,
                     **kwargs
                 )
             if resp is None:
@@ -246,7 +250,7 @@ class _CacheDef(object):
                 _setcache(
                     self.config,
                     resp,
-                    *args,
+                    *xargs,
                     **kwargs
                 )
                 if self.config.get('debug'):
