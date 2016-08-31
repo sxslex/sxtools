@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-#
 # Copyright 2015 Alexandre Villela (SleX) <https://github.com/sxslex/sxtools/>
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -21,7 +20,7 @@ from sxtools.cache_def import _loads
 from sxtools.cache_def import _dumps
 from sxtools.cache_def import _getcontextfile
 from sxtools.cache_def import _setcontextfile
-from sxtools import cache_def_clear_expired
+# from sxtools import cache_def_clear_expired
 from sxtools import cache_def
 import unittest
 import tempfile
@@ -239,3 +238,27 @@ class TestCacheDef(unittest.TestCase):
         self.assertEqual(9, foo(5, 4))
         self.assertEqual(9, foo(5, 4))
         self.assertEqual(9, foo(5, 4))
+
+
+    def test_12_cache_def_class(self):
+        class Classe():
+            def __init__(self, seed=0):
+                self.seed = seed
+
+            @cache_def(
+                # seed so that the cache be saved alone
+                seed='db_cache_metodo',
+                debug=True,
+            )
+            def metodo(self, a, b):
+                time.sleep(0.01)
+                return a + b + self.seed
+        ins = Classe(0)
+        self.assertEqual(3, ins.metodo(1, 2))
+        self.assertEqual(8, ins.metodo(4, 4))
+        self.assertEqual(8, ins.metodo(4, 4))
+        self.assertEqual(9, ins.metodo(5, 4))
+        ins = Classe(1)
+        self.assertEqual(8, ins.metodo(4, 4))
+        self.assertEqual(9, ins.metodo(5, 4))
+        self.assertEqual(10, ins.metodo(9, 0))
