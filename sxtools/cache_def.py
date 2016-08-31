@@ -23,6 +23,8 @@
 #   @denisfrm
 #
 import os
+# import copy
+import types
 import pprint
 import hashlib
 import datetime
@@ -103,17 +105,24 @@ def _setcontextfile(pathfile, context, ftype='pickle'):
         os.chmod(pathfile, 0664)
 
 
-def _getcache(config, *args, **kwargs):
+def _gera_hash(config, args, kwargs):
+    # Monta o cache da consulta de acordo com os parametros passados
+    new_args = args
+    if args and isinstance(args[0], (types.InstanceType, object)):
+        new_args = args[1:]
     newkwargs = kwargs.copy()
     if 'renew_cache' in newkwargs:
         newkwargs.pop('renew_cache')
-    sss = (
+    return hashlib.md5(
         config.get('seed', '') +
         config.get('path', '') +
         config.get('redishost', '') +
-        pprint.pformat([args, newkwargs])
-    )
-    value_md5 = hashlib.md5(sss).hexdigest()
+        pprint.pformat([new_args, newkwargs])
+    ).hexdigest()
+
+
+def _getcache(config, *args, **kwargs):
+    value_md5 = _gera_hash(config=config, args=args, kwargs=kwargs)
     if config.get('redishost'):
         import redis
         r = redis.Redis(config.get('redishost'))
@@ -142,16 +151,7 @@ def _getcache(config, *args, **kwargs):
 
 
 def _setcache(config, context, *args, **kwargs):
-    newkwargs = kwargs.copy()
-    if 'renew_cache' in newkwargs:
-        newkwargs.pop('renew_cache')
-    value_md5 = hashlib.md5(
-        config.get('seed', '') +
-        config.get('path', '') +
-        config.get('redishost', '') +
-        pprint.pformat([args, newkwargs])
-    ).hexdigest()
-
+    value_md5 = _gera_hash(config=config, args=args, kwargs=kwargs)
     # cache in redis
     if config.get('redishost'):
         import redis
@@ -304,37 +304,3 @@ def cache_def(
         debug=debug,
         ftype=ftype,
     )
-
-
-# if __name__ == '__main__':
-#     # example of use
-#     @cachedef(seed='foo')
-#     def foo(a, b):
-#         import time
-#         time.sleep(1)
-#         return a + b
-
-#     start = datetime.datetime.now()
-
-#     # it takes three seconds
-#     print 'test 1: %d ' % foo(1, 2)
-#     print 'cost: %s' % str(datetime.datetime.now() - start)
-
-#     # should return quickly
-#     start = datetime.datetime.now()
-#     print 'test 2: %d ' % foo(1, 2)
-#     print 'cost: %s' % str(datetime.datetime.now() - start)
-
-#     start = datetime.datetime.now()
-#     print 'test 3: %d ' % foo(1, 2)
-#     print 'cost: %s' % str(datetime.datetime.now() - start)
-
-#     # ignore cache
-#     start = datetime.datetime.now()
-#     print 'test 4: %d ' % foo(1, 2, renew_cache=True)
-#     print 'cost: %s' % str(datetime.datetime.now() - start)
-
-#     # it takes three seconds
-#     start = datetime.datetime.now()
-#     print 'test 5: %d ' % foo(2, 3)
-#     print 'cost: %s' % str(datetime.datetime.now() - start)
