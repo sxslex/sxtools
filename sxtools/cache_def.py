@@ -66,6 +66,7 @@ def _getpathfiledir(path, filename, nivel=3, numc=2):
     )
     if not os.path.exists(newpath):
         os.makedirs(newpath, 0o775)
+    return newpath
 
 
 def _getcontextfile(pathfile, minuteexpire=5, debug=False, ftype='pickle'):
