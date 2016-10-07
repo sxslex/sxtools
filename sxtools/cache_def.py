@@ -61,8 +61,7 @@ def _getpathfiledir(path, filename, nivel=3, numc=2):
         path.replace('\\', '/'),
         '/'.join([
             filename[i * numc:(i * numc) + numc] for i in range(nivel)
-        ]),
-        filename
+        ])
     )
     if not os.path.exists(newpath):
         os.makedirs(newpath, 0o775)
