@@ -18,23 +18,28 @@
 # Allow decorate a method with a cache to increase
 # performance of costly methods
 #    by sx.slex@gmail.com
-#    cache_def - version 0.0.4
+#    cache_def - version 0.0.5
 # Thanks:
 #   @denisfrm
 #
+# from __ future__ import unicode_literals
 import os
 # import copy
 # import types
+# import codecs
 import pprint
 import hashlib
 import datetime
 import platform
 from functools import wraps
+try:
+    import cPickle
+except:
+    import pickle as cPickle
 
 
 def _loads(s, ftype='pickle'):
     if ftype == 'pickle':
-        import cPickle
         return cPickle.loads(s)
     if ftype == 'literal':
         import ast
@@ -44,29 +49,23 @@ def _loads(s, ftype='pickle'):
 
 def _dumps(s, ftype='pickle'):
     if ftype == 'pickle':
-        import cPickle
         return cPickle.dumps(s)
     if ftype == 'literal':
-        return s.__repr__()
+        r = pprint.pformat(s).encode('utf-8')
+        return r
     raise Exception('ftype "%s" not supported' % ftype)
 
 
 def _getpathfiledir(path, filename, nivel=3, numc=2):
-    patha = path.replace('\\', '/')
-    directory = ''
-    for d in patha.split('/'):
-        directory += d
-        if d and not os.path.exists(directory):
-            os.mkdir(directory, 0775)
-            os.chmod(directory, 0775)
-        directory += '/'
-    for i in xrange(0, nivel):
-        sub = filename[i * numc:(i * numc) + numc]
-        directory += '%s/' % sub
-        if not os.path.exists(directory):
-            os.mkdir(directory, 0775)
-            os.chmod(directory, 0775)
-    return directory + filename
+    newpath = os.path.join(
+        path.replace('\\', '/'),
+        '/'.join([
+            filename[i * numc:(i * numc) + numc] for i in range(nivel)
+        ]),
+        filename
+    )
+    if not os.path.exists(newpath):
+        os.makedirs(newpath, 0o775)
 
 
 def _getcontextfile(pathfile, minuteexpire=5, debug=False, ftype='pickle'):
@@ -82,9 +81,10 @@ def _getcontextfile(pathfile, minuteexpire=5, debug=False, ftype='pickle'):
         return None
     if horas < minuteexpire:
         f = open(pathfile, 'rb')
+        content = f.read()
         try:
             try:
-                return _loads(f.read(), ftype=ftype)
+                return _loads(content, ftype=ftype)
             except:
                 return None
         finally:
@@ -98,11 +98,12 @@ def _setcontextfile(pathfile, context, ftype='pickle'):
         os.unlink(pathfile)
     f = open(pathfile, 'wb')
     try:
-        f.write(_dumps(context, ftype=ftype))
+        content = _dumps(context, ftype=ftype)
+        f.write(content)
         return True
     finally:
         f.close()
-        os.chmod(pathfile, 0664)
+        os.chmod(pathfile, 0o664)
 
 
 def _gera_hash(config, args, kwargs):
@@ -111,12 +112,15 @@ def _gera_hash(config, args, kwargs):
     newkwargs = kwargs.copy()
     if 'renew_cache' in newkwargs:
         newkwargs.pop('renew_cache')
-    return hashlib.md5(
+    s = (
         config.get('seed', '') +
         config.get('path', '') +
         config.get('redishost', '') +
         pprint.pformat([new_args, newkwargs])
-    ).hexdigest()
+    )
+    if hasattr(s, 'encode'):
+        s = s.encode('utf-8')
+    return hashlib.md5(s).hexdigest()
 
 
 def _getcache(config, *args, **kwargs):
@@ -124,9 +128,12 @@ def _getcache(config, *args, **kwargs):
     if config.get('redishost'):
         import redis
         r = redis.Redis(config.get('redishost'))
-        resp = r.get('cache_' + config.get('seed', '') + '_' + value_md5)
+        resp = r.get('cache:' + config.get('seed', '') + ':' + value_md5)
         if resp:
-            return _loads(resp, ftype=config.get('ftype', 'pickle'))
+            try:
+                return _loads(resp, ftype=config.get('ftype', 'pickle'))
+            except:
+                return None
         return None
     if config.get('path'):
         if os.path.isdir(config.get('path', '')):
@@ -157,7 +164,7 @@ def _setcache(config, context, *args, **kwargs):
         r.set(
             'cache_' + config.get('seed', '') + '_' + value_md5,
             _dumps(context, ftype=config.get('ftype', 'pickle')),
-            ex=long(config.get(
+            ex=int(config.get(
                 'minuteexpire',
                 60 * 24 * 7
             ) * 60)
@@ -178,10 +185,12 @@ def _setcache(config, context, *args, **kwargs):
     )
 
 
-class _CacheDef(object):
+class CacheDef(object):
     """
-        Decorator responsible for making a cache of the results
-        of calling a method in accordance with the reported.
+    Decorator responsible for making a cache.
+
+    Decorator responsible for making a cache of the results of calling a
+    method in accordance with the reported.
         Arguments:
             seed -- string to differentiate the caches
             redishost -- host redis server
@@ -200,6 +209,7 @@ class _CacheDef(object):
         debug=False,
         ftype='pickle'
     ):
+        """."""
         if not path and not redishost:
             path = '/tmp/cachedef'
             if platform.system() == 'Windows':
@@ -216,6 +226,7 @@ class _CacheDef(object):
             self.__config['path'] = path + '/' + seed
 
     def __call__(self, call, *args, **kwargs):
+        """."""
         self.config = self.__config.copy()
         # self.config['path'] = self.config['path']  # + '/' + call.func_name
 
@@ -245,10 +256,16 @@ class _CacheDef(object):
                     **kwargs
                 )
             if resp is None:
+                # pprint.pprint(call)
+                co_varnames = []
+                if hasattr(call, 'func_code'):
+                    co_varnames = call.func_code.co_varnames
+                elif hasattr(call, '__code__'):
+                    co_varnames = call.__code__.co_varnames
                 if self.config.get('debug'):
                     print('not cache')
                 if (
-                    'renew_cache' not in call.func_code.co_varnames
+                    'renew_cache' not in co_varnames
                 ) and (
                     'renew_cache' in kwargs
                 ):
@@ -297,8 +314,10 @@ def cache_def(
     ftype='pickle',
 ):
     """
-        Decorator responsible for making a cache of the results
-        of calling a method in accordance with the reported.
+    Decorator responsible for making a cache.
+
+    Decorator responsible for making a cache of the results
+    of calling a method in accordance with the reported.
 
         Arguments:
             seed -- string to differentiate the caches
@@ -308,7 +327,7 @@ def cache_def(
             debug -- bool active debug mode
             ftype -- so that to store the cache ('pickle', 'literal')
     """
-    return _CacheDef(
+    return CacheDef(
         seed=seed,
         redishost=redishost,
         path=path,
