@@ -6,8 +6,17 @@ sxtools
    :alt: Join the chat at https://gitter.im/sxslex/sxtools
    :target: https://gitter.im/sxslex/sxtools?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
 
+.. image:: https://img.shields.io/badge/pypi-v1.0-orange.svg
+    :target: https://pypi.python.org/pypi/sxtools
+
+.. image:: https://img.shields.io/badge/python-2.6%2C%202.7%2C%203.3+-blue.svg
+    :target: https://travis-ci.org/sxslex/sxtools.svg?branch=master
+
 .. image:: https://travis-ci.org/sxslex/sxtools.svg?branch=master
     :target: https://travis-ci.org/sxslex/sxtools
+
+.. image:: https://img.shields.io/badge/license--blue.svg
+    :target: https://github.com/sxslex/sxtools/blob/master/LICENSE
 
 
 The ``sxtools`` Useful Functions Set: Remove Accents, Pluralize, Deep Encode and etc..
