@@ -1,21 +1,20 @@
 # -*- coding: utf-8 -*-
 
 from setuptools import setup
-from sxtools import name
-from sxtools import __description__
-from sxtools import __version__
 
 
 setup(
-    name=name,
-    version=__version__,
+    name='sxtools',
+    version='1.0',
+    description=(
+        'Useful Functions Set: Remove Accents, Pluralize, Deep Encode and etc..'
+    ),
     url='https://github.com/sxslex/sxtools',
     download_url=(
         'https://github.com/sxslex/sxtools/archive/v1.0.tar.gz'
     ),
     author='Alexandre Villela (SleX)',
     author_email='sx.slex@gmail.com',
-    description=__description__,
     keywords=[
         'remove', 'accents',
         'pluralize',
