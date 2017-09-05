@@ -1,4 +1,4 @@
-# coding: utf-8
+# -*- coding: utf-8 -*-
 
 # Copyright 2015-2017 Alexandre Villela <https://github.com/sxslex/sxtools/>
 #
